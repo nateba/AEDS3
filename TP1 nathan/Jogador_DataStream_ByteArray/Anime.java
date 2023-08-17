@@ -1,3 +1,9 @@
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.DataInputStream;
+
+import java.io.IOException;
 import java.text.DecimalFormat;
 
 public class Anime {
@@ -42,5 +48,36 @@ public class Anime {
                 "\nType:" + type +
                 "\nEpisodes:" + episodes +
                 "\nAired:" + aired;
+    }
+
+    public byte[] toByteArray() throws IOException {
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(baos);
+
+        dos.writeInt(idAnime);
+        dos.writeUTF(nome);
+        dos.writeFloat(score);
+        dos.writeUTF(genres);
+        dos.writeUTF(type);
+        dos.writeInt(episodes);
+        dos.writeLong(aired);
+
+        return baos.toByteArray();
+    }
+
+    public void fromByteArray(byte ba[]) throws IOException {
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(ba);
+        DataInputStream dis = new DataInputStream(bais);
+
+        idAnime = dis.readInt();
+        nome = dis.readUTF();
+        score = dis.readFloat();
+        genres = dis.readUTF();
+        type = dis.readUTF();
+        episodes = dis.readInt();
+        aired = dis.readLong();
+
     }
 }

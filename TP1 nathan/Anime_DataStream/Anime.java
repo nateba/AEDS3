@@ -1,10 +1,13 @@
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.DataInputStream;
-
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Anime {
 
@@ -14,7 +17,80 @@ public class Anime {
     protected String genres;
     protected String type;
     protected int episodes;
-    protected long aired = System.currentTimeMillis() / 1000L;
+    protected long aired;
+
+    public int getIdAnime() {
+        return idAnime;
+    }
+
+    public void setIdAnime(int idAnime) {
+        this.idAnime = idAnime;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public float getScore() {
+        return score;
+    }
+
+    public void setScore(float score) {
+        this.score = score;
+    }
+
+    public String getGenres() {
+        return genres;
+    }
+
+    public void setGenres(String genres) {
+        this.genres = genres;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public int getEpisodes() {
+        return episodes;
+    }
+
+    public void setEpisodes(int episodes) {
+        this.episodes = episodes;
+    }
+
+    public long getAired() {
+        return aired;
+    }
+
+    public void setAired(String dateString) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Date date = dateFormat.parse(dateString);
+            aired = date.getTime() / 1000; // Convert milliseconds to seconds
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Anime(int idAnime, String nome, float score, String genres, String type, int episodes, String airedDate) {
+        this(); // Chama o construtor padrão para configurar campos padrão
+        setIdAnime(idAnime);
+        setNome(nome);
+        setScore(score);
+        setGenres(genres);
+        setType(type);
+        setEpisodes(episodes);
+        setAired(airedDate); // Converte a data no formato "yyyy-MM-dd"
+    }
 
     // Construtor
     public Anime(int i, String n, float s, String g, String t, int e, long a) {
@@ -80,4 +156,5 @@ public class Anime {
         aired = dis.readLong();
 
     }
+
 }

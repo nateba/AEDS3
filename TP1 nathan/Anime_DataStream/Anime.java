@@ -75,7 +75,7 @@ public class Anime {
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date date = dateFormat.parse(dateString);
-            aired = date.getTime() / 1000; // Convert milliseconds to seconds
+            aired = date.getTime() / 1000; // Converte mili -> sec
         } catch (Exception e) {
             e.printStackTrace();
         }

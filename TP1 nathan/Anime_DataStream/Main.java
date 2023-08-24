@@ -11,12 +11,12 @@ public class Main {
 
     public static String header;
 
-    public static String[] splitCSVRow(String row) {
+    public static String[] splitCSVLinha(String linha) {
         List<String> columns = new ArrayList<>();
         boolean entreAspas = false;
         StringBuilder currentColumn = new StringBuilder();
 
-        for (char c : row.toCharArray()) {
+        for (char c : linha.toCharArray()) {
             if (c == '\"') {
                 entreAspas = !entreAspas;
             } else if (c == ',' && !entreAspas) {
@@ -36,9 +36,9 @@ public class Main {
         try {
             BufferedReader csvReader = new BufferedReader(new FileReader(csvPath));
             header = csvReader.readLine();
-            String row;
-            while ((row = csvReader.readLine()) != null) {
-                String[] data = splitCSVRow(row);
+            String linha;
+            while ((linha = csvReader.readLine()) != null) {
+                String[] data = splitCSVLinha(linha);
                 Anime anime = new Anime(Integer.parseInt(data[0]), data[1], Float.parseFloat(data[2]), data[3], data[4],
                         Integer.parseInt(data[5]), data[6]);
                 animeList.add(anime);

@@ -1,16 +1,9 @@
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.io.*;
+import java.text.*;
+import java.util.*;
 
 public class Anime {
-
     protected int idAnime;
     protected String nome;
     protected float score;
@@ -18,6 +11,8 @@ public class Anime {
     protected String type;
     protected int episodes;
     protected long aired;
+
+    DecimalFormat df = new DecimalFormat("#,##0.00");// formata o valor dos pontos
 
     public int getIdAnime() {
         return idAnime;
@@ -82,7 +77,7 @@ public class Anime {
     }
 
     public Anime(int idAnime, String nome, float score, String genres, String type, int episodes, String airedDate) {
-        this(); // Chama o construtor padrão para configurar campos padrão
+        this(); // Chama o construtor padrão para configurar campos padrões
         setIdAnime(idAnime);
         setNome(nome);
         setScore(score);
@@ -116,7 +111,6 @@ public class Anime {
 
     // Devolve uma string com os dados do jogador
     public String toString() {
-        DecimalFormat df = new DecimalFormat("#,##0.00");// formata o valor dos pontos
         return "\nID:" + idAnime +
                 "\nNomes:" + nome +
                 "\nScores:" + df.format(score) +
@@ -127,7 +121,6 @@ public class Anime {
     }
 
     public byte[] toByteArray() throws IOException {
-
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
 
@@ -142,8 +135,7 @@ public class Anime {
         return baos.toByteArray();
     }
 
-    public void fromByteArray(byte ba[]) throws IOException {
-
+    public void fromByteArray(byte[] ba) throws IOException {
         ByteArrayInputStream bais = new ByteArrayInputStream(ba);
         DataInputStream dis = new DataInputStream(bais);
 
@@ -154,7 +146,6 @@ public class Anime {
         type = dis.readUTF();
         episodes = dis.readInt();
         aired = dis.readLong();
-
     }
 
 }

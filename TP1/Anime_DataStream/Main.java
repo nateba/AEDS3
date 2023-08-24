@@ -2,7 +2,6 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-
     public static String header;
 
     public static String[] splitCSVLinha(String linha) {
@@ -46,7 +45,6 @@ public class Main {
     }
 
     public static void main(String[] args) {
-
         RandomAccessFile arq; // arquivo de saída
 
         byte[] ba;
@@ -58,16 +56,22 @@ public class Main {
 
             Anime[] animes = readFromCSV("dados/anime_tratado.csv");
 
+            long p1 = arq.getFilePointer();
+
             for (Anime anime : animes) {
                 ba = anime.toByteArray();
                 arq.writeInt(ba.length); // Tamanho do registro em bytes
                 arq.write(ba);
             }
 
+            long p2 = arq.getFilePointer();
+
             // Leitura
             BufferedWriter writer = new BufferedWriter(new FileWriter("dados/animes_impressos.txt"));
 
-            while (arq.getFilePointer() < arq.length()) {
+            arq.seek(p1);
+
+            while (p1 < p2) {
                 len = arq.readInt();
                 ba = new byte[len];
                 arq.read(ba);
@@ -75,8 +79,7 @@ public class Main {
                 Anime anime = new Anime();
                 anime.fromByteArray(ba);
 
-                // Imprime no console
-                System.out.println(anime);
+                p1 = arq.getFilePointer();
 
                 // Escreve no arquivo de impressão
                 writer.write(anime.toString());
@@ -85,7 +88,6 @@ public class Main {
 
             writer.close();
             arq.close();
-
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

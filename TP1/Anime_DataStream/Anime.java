@@ -12,7 +12,7 @@ public class Anime {
     protected int episodes;
     protected long aired;
 
-    DecimalFormat df = new DecimalFormat("#,##0.00");// formata o valor dos pontos
+    DecimalFormat df = new DecimalFormat("#,##0.00"); // Formatar o valor dos pontos
 
     public int getIdAnime() {
         return idAnime;
@@ -70,7 +70,7 @@ public class Anime {
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date date = dateFormat.parse(dateString);
-            aired = date.getTime() / 1000; // Converte mili -> sec
+            this.aired = date.getTime() / 1000; // Converter milissegundos para segundos
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -110,14 +110,18 @@ public class Anime {
     }
 
     // Devolve uma string com os dados do jogador
-    public String toString() {
-        return "\nID:" + idAnime +
-                "\nNomes:" + nome +
-                "\nScores:" + df.format(score) +
-                "\nGenres:" + genres +
-                "\nType:" + type +
-                "\nEpisodes:" + episodes +
-                "\nAired:" + aired;
+    public String toString(long dataExibicao) {
+        Date d = new Date(dataExibicao * 1000);
+        SimpleDateFormat formatador = new SimpleDateFormat("dd MMMM yyyy");
+        String dataString = formatador.format(d);
+
+        return "\nID:\t\t\t" + idAnime +
+                "\nNomes:\t\t" + nome +
+                "\nScores:\t\t" + df.format(score) +
+                "\nGenres:\t\t" + genres +
+                "\nType:\t\t" + type +
+                "\nEpisodes:\t" + episodes +
+                "\nAired:\t\t" + dataString;
     }
 
     public byte[] toByteArray() throws IOException {

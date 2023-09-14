@@ -2,7 +2,7 @@ import java.io.*;
 import java.text.*;
 import java.util.*;
 
-public class Registro {
+public class Registro extends Crud {
     private int idRegistro;
     private boolean lapide;
     private int tamanho;
@@ -49,6 +49,13 @@ public class Registro {
 
     public Registro(Anime anime) throws IOException {
         idRegistro = anime.idAnime;
+        lapide = false;
+        tamanho = anime.toByteArray().length;
+        this.anime = anime;
+    }
+
+    public Registro(Anime anime, int id) throws IOException {
+        idRegistro = id;
         lapide = false;
         tamanho = anime.toByteArray().length;
         this.anime = anime;

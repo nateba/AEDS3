@@ -23,40 +23,47 @@ public class Crud {
     }
 
     public Registro readRegistro(String enderecoDB, int idRegistro) throws IOException {
-        // Leitura dos registros
-        RandomAccessFile arq = new RandomAccessFile(enderecoDB, "r");
 
-        // Endereço do ponteiro de início
-        long ponteiroBase = arq.getFilePointer();
-        arq.seek(ponteiroBase + 4);
+        try (RandomAccessFile arq = new RandomAccessFile(enderecoDB, "r")) {
 
-        while (ponteiroBase < arq.length()) {
-            // Conferir se é o mesmo ID passado por parâmetro
-            if (arq.readInt() == idRegistro) {
-                // Conferir se o arquivo não foi apagado
-                if (arq.readBoolean() == false) {
-                    int tamanho = arq.readInt();
+            // Endereço do ponteiro de início
+            long ponteiroBase = arq.getFilePointer();
+            arq.seek(ponteiroBase + 4);
 
-                    byte[] ba = new byte[tamanho];
-                    arq.read(ba);
+            while (ponteiroBase < arq.length()) {
+                // Conferir se é o mesmo ID passado por parâmetro
+                if (arq.readInt() == idRegistro) {
+                    // Conferir se o arquivo não foi apagado
+                    if (arq.readBoolean() == false) {
+                        int tamanho = arq.readInt();
 
-                    Registro registro = new Registro();
-                    registro.fromByteArray(idRegistro, false, tamanho, ba);
+                        byte[] ba = new byte[tamanho];
+                        arq.read(ba);
 
-                    return registro;
-                } else {
-                    return null;
+                        Registro registro = new Registro();
+                        registro.fromByteArray(idRegistro, false, tamanho, ba);
+
+                        return registro;
+                    } else {
+                        return null;
+                    }
                 }
+
+                arq.readBoolean();
+                int tamanhoRegistro = arq.readInt();
+
+                ponteiroBase = arq.getFilePointer();
+
+                arq.seek(ponteiroBase + tamanhoRegistro);
+
+                ponteiroBase = arq.getFilePointer();
             }
 
-            arq.readBoolean();
-            int tamanhoRegistro = arq.readInt();
-
-            ponteiroBase = arq.getFilePointer();
-
-            arq.seek(ponteiroBase + tamanhoRegistro);
-
-            ponteiroBase = arq.getFilePointer();
+            arq.close();
+        } catch (Exception e) {
+            System.out.println("Erro ao ler registro");
+            e.printStackTrace();
+            return null;
         }
 
         return null;

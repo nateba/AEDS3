@@ -11,7 +11,7 @@ public class Main {
             // Passar o path dos arquivos DB e TXT, respectivamente
             lerArquivoDB("dados/animes.db", "dados/animes_impressos.txt");
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
 
     }
@@ -24,9 +24,16 @@ public class Main {
 
         Anime[] animes = lerArquivoCSV(enderecoCSV);
 
+        int ultimoId;
+        ultimoId = animes[animes.length - 1].idAnime;
+
+        arq.writeInt(ultimoId);
+
         for (Anime anime : animes) {
-            ba = anime.toByteArray();
-            arq.writeInt(ba.length); // Tamanho do registro em bytes
+            Registro registro = new Registro(anime);
+
+            ba = registro.toByteArray();
+
             arq.write(ba);
         }
 
@@ -41,24 +48,29 @@ public class Main {
         BufferedWriter writer = new BufferedWriter(new FileWriter("dados/animes_impressos.txt"));
 
         byte[] ba;
+        int idTeste;
         int len;
+        boolean lapis;
 
         // Endereço do ponteiro de início
         long ponteiroBase = arq.getFilePointer();
-        arq.seek(ponteiroBase);
+        arq.seek(ponteiroBase + 4);
 
         while (ponteiroBase < arq.length()) {
+            idTeste = arq.readInt();
+            lapis = arq.readBoolean();
             len = arq.readInt();
+
             ba = new byte[len];
             arq.read(ba);
 
-            Anime anime = new Anime();
-            anime.fromByteArray(ba);
+            Registro registro = new Registro();
+            registro.fromByteArray(idTeste, lapis, len, ba);
 
             ponteiroBase = arq.getFilePointer();
 
             // Escrever no arquivo de impressão
-            writer.write(anime.toString(anime.aired));
+            writer.write(registro.toString());
             writer.newLine();
         }
 

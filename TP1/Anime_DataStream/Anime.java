@@ -139,7 +139,7 @@ public class Anime {
         return baos.toByteArray();
     }
 
-    public void fromByteArray(byte[] ba) throws IOException {
+    public Anime fromByteArray(byte[] ba) throws IOException {
         ByteArrayInputStream bais = new ByteArrayInputStream(ba);
         DataInputStream dis = new DataInputStream(bais);
 
@@ -150,6 +150,8 @@ public class Anime {
         type = dis.readUTF();
         episodes = dis.readInt();
         aired = dis.readLong();
+
+        return this;
     }
 
 }

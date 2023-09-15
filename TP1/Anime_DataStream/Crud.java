@@ -119,7 +119,7 @@ public class Crud {
 
     public boolean deleteRegistro(String enderecoDB, int idRegistro) {
         // Ler o arquivo com todos os registros
-        try (RandomAccessFile arq = new RandomAccessFile(enderecoDB, "r")) {
+        try (RandomAccessFile arq = new RandomAccessFile(enderecoDB, "rw")) {
             // Endereço do ponteiro de início
             long ponteiroBase = arq.getFilePointer();
             arq.seek(ponteiroBase + 4);

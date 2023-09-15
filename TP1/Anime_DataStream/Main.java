@@ -2,7 +2,7 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         try {
             // Passar o path dos arquivos DB e CSV, respectivamente
@@ -13,7 +13,24 @@ public class Main {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        // Anime anime2 = new Anime(48457, "bobmaneiro", 8.16f,
+        // "vaca",
+        // "TV", 500, "2007-02-15");
 
+        // Registro bolacha = new Registro();
+        // bolacha.createRegistro("dados/animes.db", anime2);
+        // bolacha = bolacha.readRegistro("dados/animes.db", 48457);
+        // System.out.println(bolacha.getAnime().getNome());
+
+        Registro bolacha2 = new Registro();
+        // bolacha2.updateRegistro("dados/animes.db", anime2);
+        // bolacha2 = bolacha2.readRegistro("dados/animes.db", 48457);
+
+        // Registro bolacha3 = new Registro();
+        // bolacha3.readRegistro("dados/animes.db", 48457);
+        // System.out.println(bolacha3.getAnime().getGenres());
+
+        bolacha2.deleteRegistro("dados/animes.db", 48457);
     }
 
     public static void escreverArquivoDB(String enderecoDB, String enderecoCSV) throws Exception {

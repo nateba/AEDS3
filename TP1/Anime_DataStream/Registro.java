@@ -1,6 +1,4 @@
 import java.io.*;
-import java.text.*;
-import java.util.*;
 
 public class Registro extends Crud {
     private int idRegistro;
@@ -84,9 +82,13 @@ public class Registro extends Crud {
         anime = anime.fromByteArray(dis.readNBytes(tamanho));
     }
 
-    @Override
-    public String toString() {
-        return "Registro [idRegistro=" + idRegistro + ", lapide=" + lapide + ", tamanho=" + tamanho + ", anime=" + anime
-                + "]";
+    public String toString(byte[] ba) throws IOException {
+        anime.fromByteArray(ba);
+
+        return "REGISTRO DE ID " + idRegistro +
+                "\nLapide: " + lapide +
+                "\nTamanho: " + tamanho +
+                "\nDADOS DO ANIME" + anime.toString(anime.aired)
+                + "\n\n= = = x = = = x = = = x = = = x = = = x = = =\n";
     }
 }

@@ -116,8 +116,8 @@ public class Anime {
         String dataString = formatador.format(d);
 
         return "\nID:\t\t\t" + idAnime +
-                "\nNomes:\t\t" + nome +
-                "\nScores:\t\t" + df.format(score) +
+                "\nNome:\t\t" + nome +
+                "\nScore:\t\t" + df.format(score) +
                 "\nGenres:\t\t" + genres +
                 "\nType:\t\t" + type +
                 "\nEpisodes:\t" + episodes +

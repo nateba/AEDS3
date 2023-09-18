@@ -60,6 +60,9 @@ public class Menu {
                     case 5:
                         menuListarRegistro();
                         break;
+                    case 6:
+                        exibirMenuOrdenacao();
+                        break;
                 }
 
                 System.out.println("\nEscolha outra opção:");
@@ -104,6 +107,7 @@ public class Menu {
         System.out.println("3 - Atualizar um Anime existente");
         System.out.println("4 - Deletar um Anime");
         System.out.println("5 - Listar todos os Animes em um arquivo .txt");
+        System.out.println("6 - Aplicar uma ordenacao externa");
         System.out.println("0 - Sair do programa");
     }
 
@@ -240,6 +244,38 @@ public class Menu {
         }
     }
 
+    public void exibirMenuOrdenacao() {
+        System.out.println("Voce deseja fazer a ordenacao por qual metodo?");
+        System.out.println("1 - Intercalacao balanceada comum");
+        System.out.println("2 - Intercalacao balanceada com blocos de tamanho variavel");
+        System.out.println("3 - Intercalacao balanceada com selecao por substituicao");
+        System.out.println("4 - Voltar para o menu CRUD");
+        System.out.println("0 - Sair do programa");
+    }
+
+    public void menuOrdenacao() {
+        int opcao = 0;
+        switch (opcao) {
+            case 1:
+                System.out.println("\nVocê quer criar um novo registro. Vamos começar!");
+                // Intercalação balanceada comum
+                break;
+            case 2:
+                System.out.println("\nVocê quer pesquisar o ID de um registro. Vamos lá!");
+                // Intercalação balanceada com blocos de tamanho variável
+                break;
+            case 3:
+                System.out.println("\nVocê quer atualizar as informações de um registro.");
+                // Intercalação balanceada com seleção por substituição
+                break;
+            case 4:
+                System.out.println("\nVocê quer voltar para o menu CRUD?");
+                exibirMenuCRUD();
+                break;
+        }
+        opcao = input.nextInt();
+    }
+
     // Funções para lidar com os arquivos externos
     public void escreverArquivoDB(String enderecoDB, String enderecoCSV) throws Exception {
         // Escrita dos registros
@@ -265,7 +301,7 @@ public class Menu {
         arq.close();
     }
 
-    public static void escreverArquivoTXT(String enderecoDB, String enderecoTXT) throws Exception {
+    public void escreverArquivoTXT(String enderecoDB, String enderecoTXT) throws Exception {
         // Leitura dos registros
         RandomAccessFile arq = new RandomAccessFile(enderecoDB, "r");
 

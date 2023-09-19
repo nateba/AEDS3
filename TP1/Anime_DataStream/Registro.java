@@ -91,4 +91,8 @@ public class Registro extends Crud {
                 "\nDADOS DO ANIME" + anime.toString(anime.aired)
                 + "\n\n= = = x = = = x = = = x = = = x = = = x = = =\n";
     }
+
+    public String toString2(byte[] ba) throws IOException {
+        return "REGISTRO DE ID " + idRegistro;
+    }
 }

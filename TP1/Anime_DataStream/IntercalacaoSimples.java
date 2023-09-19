@@ -9,24 +9,6 @@ class ComparadorPorId implements Comparator<Registro> {
 }
 
 public class IntercalacaoSimples {
-    // pega 12000 registros
-    // cria arquivo tmp1
-    // cria arquivo tmp2
-
-    // puxa 100 pra memoria principal
-    // ordena
-    // volta pro arquivo tmp1 com eles ordenados
-
-    // puxa 100 pra memoria principal
-    // ordena
-    // volta pro arquivo tmp2 com eles ordenados
-
-    // faz isso ate acabar o arquivo de 12k
-
-    // faz o merge dos dois arquivos tmp1 e tmp2 jogando no tmp3 e no tmp4
-    // cria o tmp3 e o tmp4
-
-    // quando sobrar só 1 arquivo ta tudo ordenado
     int arqTmp = 2;
     int bloco = 100;
 
@@ -37,7 +19,7 @@ public class IntercalacaoSimples {
 
         distribuicao("dados/animes.db");
 
-        // intercalacao();
+        intercalacao();
     }
 
     public int contaRegistros(String enderecoDB) {
@@ -87,8 +69,6 @@ public class IntercalacaoSimples {
             int len;
             boolean lapis;
 
-            int contadorRegistros = 0;
-
             // Endereço do ponteiro de início
             long ponteiroBase = arq.getFilePointer();
             arq.seek(ponteiroBase + 4);
@@ -110,27 +90,32 @@ public class IntercalacaoSimples {
                     registro.fromByteArray(idRegistro, lapis, len, ba);
 
                     registros.add(registro);
-
-                    contadorRegistros++;
-                }
-
-                if (contadorRegistros == bloco) {
-                    Collections.sort(registros, new ComparadorPorId());
-
-                    for (Registro registro : registros) {
-                        tmps[contadorTmp % arqTmp].seek(tmps[contadorTmp % arqTmp].length());
-                        tmps[contadorTmp % arqTmp].writeInt(registro.getIdRegistro());
-                        tmps[contadorTmp % arqTmp].writeBoolean(registro.isLapide());
-                        tmps[contadorTmp % arqTmp].writeInt(registro.getTamanho());
-                        tmps[contadorTmp % arqTmp].write(registro.getAnime().toByteArray());
-                    }
-
-                    contadorTmp++;
-                    contadorRegistros = 0;
-                    registros.clear();
                 }
 
                 ponteiroBase = arq.getFilePointer();
+            }
+
+            while (registros.size() > 0) {
+                ArrayList<Registro> blocoOrdenavelTmp = new ArrayList<Registro>();
+
+                for (int i = 0; i < bloco; i++) {
+                    if (registros.size() > 0) {
+                        blocoOrdenavelTmp.add(registros.get(0));
+                        registros.remove(0);
+                    }
+                }
+
+                Collections.sort(blocoOrdenavelTmp, new ComparadorPorId());
+
+                for (Registro registro : blocoOrdenavelTmp) {
+                    tmps[contadorTmp % arqTmp].seek(tmps[contadorTmp % arqTmp].length());
+                    tmps[contadorTmp % arqTmp].writeInt(registro.getIdRegistro());
+                    tmps[contadorTmp % arqTmp].writeBoolean(registro.isLapide());
+                    tmps[contadorTmp % arqTmp].writeInt(registro.getTamanho());
+                    tmps[contadorTmp % arqTmp].write(registro.getAnime().toByteArray());
+                }
+
+                contadorTmp++;
             }
 
             // escreverArquivoTXT("tmps/tmp1.db", "tmps/txt1.txt");
@@ -142,86 +127,224 @@ public class IntercalacaoSimples {
         }
     }
 
-    public void intercalacao(String enderecoDB) {
+    public void intercalacao() {
         try {
-            RandomAccessFile[] tmps = new RandomAccessFile[arqTmp * 2];
+            RandomAccessFile tmp1 = new RandomAccessFile("tmps/tmp1.db", "rw");
+            RandomAccessFile tmp2 = new RandomAccessFile("tmps/tmp2.db", "rw");
+            RandomAccessFile tmp3 = new RandomAccessFile("tmps/tmp3.db", "rw");
+            RandomAccessFile tmp4 = new RandomAccessFile("tmps/tmp4.db", "rw");
 
-            for (int i = 0; i < arqTmp * 2; i++) {
-                tmps[i] = new RandomAccessFile("tmps/tmp" + (i + 1) + ".db", "rw");
-            }
+            ArrayList<Registro> registrosTmp1 = new ArrayList<Registro>();
+            ArrayList<Registro> registrosTmp2 = new ArrayList<Registro>();
+            ArrayList<Registro> registrosTmp3 = new ArrayList<Registro>();
+            ArrayList<Registro> registrosTmp4 = new ArrayList<Registro>();
 
-            ArrayList<Registro>[] matrizTemporarios = new ArrayList[arqTmp];
-
-            int numeroRodada = 1; // Número da intercalação
-
-            long[] ponteiroBase = new long[arqTmp * 2];
-
-            for (int i = 0; i < bloco; i++) {
-                if (numeroRodada % 2 == 0) {
-
-                } else {
-
-                }
-
-                long ponteiroBase = tmps[0].getFilePointer();
-                tmps[0].seek(i);
-            }
+            int numeroRodada = 0; // Número da rodada de intercalação
 
             byte[] ba;
             int idRegistro;
             int len;
             boolean lapis;
 
-            int contadorRegistros = 0;
+            long ponteiroBase;
 
-            // Endereço do ponteiro de início
-            long ponteiroBase = arq.getFilePointer();
-            arq.seek(ponteiroBase + 4);
+            boolean arquivoOrdenado = false;
 
-            int contadorTmp = 0;
+            while (arquivoOrdenado == false) {
+                System.out.println(numeroRodada);
+                if (numeroRodada % 2 == 0) {
+                    do {
+                        tmp1.seek(0);
+                        ponteiroBase = tmp1.getFilePointer();
 
-            ArrayList<Registro> registros = new ArrayList<Registro>();
+                        // Varre o arquivo temporário 1
+                        while (ponteiroBase < tmp1.length()) {
+                            idRegistro = tmp1.readInt();
+                            lapis = tmp1.readBoolean();
+                            len = tmp1.readInt();
 
-            while (ponteiroBase < arq.length()) {
-                idRegistro = arq.readInt();
-                lapis = arq.readBoolean();
-                len = arq.readInt();
+                            ba = new byte[len];
+                            tmp1.read(ba);
 
-                ba = new byte[len];
-                arq.read(ba);
+                            Registro registro = new Registro();
+                            registro.fromByteArray(idRegistro, lapis, len, ba);
 
-                if (lapis == false) {
-                    Registro registro = new Registro();
-                    registro.fromByteArray(idRegistro, lapis, len, ba);
+                            registrosTmp1.add(registro);
 
-                    registros.add(registro);
+                            ponteiroBase = tmp1.getFilePointer();
+                        }
 
-                    contadorRegistros++;
+                        tmp2.seek(0);
+                        ponteiroBase = tmp2.getFilePointer();
+
+                        // Varre o arquivo temporário 2
+                        while (ponteiroBase < tmp2.length()) {
+                            idRegistro = tmp2.readInt();
+                            lapis = tmp2.readBoolean();
+                            len = tmp2.readInt();
+
+                            ba = new byte[len];
+                            tmp2.read(ba);
+
+                            Registro registro = new Registro();
+                            registro.fromByteArray(idRegistro, lapis, len, ba);
+
+                            registrosTmp2.add(registro);
+
+                            ponteiroBase = tmp2.getFilePointer();
+                        }
+
+                        tmp1.setLength(0);
+                        tmp2.setLength(0);
+
+                        int rodadaArquivo = 0;
+
+                        while (registrosTmp1.size() > 0 || registrosTmp2.size() > 0) {
+                            ArrayList<Registro> blocoOrdenavelTmp = new ArrayList<Registro>();
+
+                            for (int i = 0; i < (bloco * Math.pow(2, numeroRodada)); i++) {
+                                if (registrosTmp1.size() > 0) {
+                                    blocoOrdenavelTmp.add(registrosTmp1.get(0));
+                                    registrosTmp1.remove(0);
+                                }
+                            }
+
+                            for (int i = 0; i < (bloco * Math.pow(2, numeroRodada)); i++) {
+                                if (registrosTmp2.size() > 0) {
+                                    blocoOrdenavelTmp.add(registrosTmp2.get(0));
+                                    registrosTmp2.remove(0);
+                                }
+                            }
+
+                            Collections.sort(blocoOrdenavelTmp, new ComparadorPorId());
+
+                            RandomAccessFile numeroArquivoEscrita;
+                            numeroArquivoEscrita = (rodadaArquivo % 2 == 0) ? tmp3 : tmp4;
+
+                            for (Registro registro : blocoOrdenavelTmp) {
+                                numeroArquivoEscrita.seek(numeroArquivoEscrita.length());
+                                numeroArquivoEscrita.writeInt(registro.getIdRegistro());
+                                numeroArquivoEscrita.writeBoolean(registro.isLapide());
+                                numeroArquivoEscrita.writeInt(registro.getTamanho());
+                                numeroArquivoEscrita.write(registro.getAnime().toByteArray());
+                            }
+
+                            System.out.println(blocoOrdenavelTmp.size());
+
+                            if (blocoOrdenavelTmp.size() >= qtdRegistros) {
+                                arquivoOrdenado = true;
+                            }
+
+                            blocoOrdenavelTmp.clear();
+
+                            rodadaArquivo++;
+                        }
+
+                    } while (registrosTmp1.size() > 0 || registrosTmp2.size() > 0);
+                } else {
+                    do {
+                        tmp3.seek(0);
+                        ponteiroBase = tmp3.getFilePointer();
+
+                        // Varre o arquivo temporário 3
+                        while (ponteiroBase < tmp3.length()) {
+                            idRegistro = tmp3.readInt();
+                            lapis = tmp3.readBoolean();
+                            len = tmp3.readInt();
+
+                            ba = new byte[len];
+                            tmp3.read(ba);
+
+                            Registro registro = new Registro();
+                            registro.fromByteArray(idRegistro, lapis, len, ba);
+
+                            registrosTmp3.add(registro);
+
+                            ponteiroBase = tmp3.getFilePointer();
+                        }
+
+                        tmp4.seek(0);
+                        ponteiroBase = tmp4.getFilePointer();
+
+                        // Varre o arquivo temporário 2
+                        while (ponteiroBase < tmp4.length()) {
+                            idRegistro = tmp4.readInt();
+                            lapis = tmp4.readBoolean();
+                            len = tmp4.readInt();
+
+                            ba = new byte[len];
+                            tmp4.read(ba);
+
+                            Registro registro = new Registro();
+                            registro.fromByteArray(idRegistro, lapis, len, ba);
+
+                            registrosTmp4.add(registro);
+
+                            ponteiroBase = tmp4.getFilePointer();
+                        }
+
+                        tmp3.setLength(0);
+                        tmp4.setLength(0);
+
+                        int rodadaArquivo = 0;
+
+                        while (registrosTmp3.size() > 0 || registrosTmp4.size() > 0) {
+                            ArrayList<Registro> blocoOrdenavelTmp = new ArrayList<Registro>();
+
+                            for (int i = 0; i < (bloco * Math.pow(2, numeroRodada)); i++) {
+                                if (registrosTmp3.size() > 0) {
+                                    blocoOrdenavelTmp.add(registrosTmp3.get(0));
+                                    registrosTmp3.remove(0);
+                                }
+                            }
+
+                            for (int i = 0; i < (bloco * Math.pow(2, numeroRodada)); i++) {
+                                if (registrosTmp4.size() > 0) {
+                                    blocoOrdenavelTmp.add(registrosTmp4.get(0));
+                                    registrosTmp4.remove(0);
+                                }
+                            }
+
+                            Collections.sort(blocoOrdenavelTmp, new ComparadorPorId());
+
+                            RandomAccessFile numeroArquivoEscrita;
+                            numeroArquivoEscrita = (rodadaArquivo % 2 == 0) ? tmp1 : tmp2;
+
+                            for (Registro registro : blocoOrdenavelTmp) {
+                                numeroArquivoEscrita.seek(numeroArquivoEscrita.length());
+                                numeroArquivoEscrita.writeInt(registro.getIdRegistro());
+                                numeroArquivoEscrita.writeBoolean(registro.isLapide());
+                                numeroArquivoEscrita.writeInt(registro.getTamanho());
+                                numeroArquivoEscrita.write(registro.getAnime().toByteArray());
+                            }
+
+                            System.out.println(blocoOrdenavelTmp.size());
+
+                            if (blocoOrdenavelTmp.size() >= qtdRegistros) {
+                                arquivoOrdenado = true;
+                            }
+
+                            blocoOrdenavelTmp.clear();
+
+                            rodadaArquivo++;
+                        }
+
+                    } while (registrosTmp3.size() > 0 || registrosTmp4.size() > 0);
                 }
 
-                if (contadorRegistros == bloco) {
-                    Collections.sort(registros, new ComparadorPorId());
-
-                    for (Registro registro : registros) {
-                        tmps[contadorTmp % arqTmp].seek(tmps[contadorTmp % arqTmp].length());
-                        tmps[contadorTmp % arqTmp].writeInt(registro.getIdRegistro());
-                        tmps[contadorTmp % arqTmp].writeBoolean(registro.isLapide());
-                        tmps[contadorTmp % arqTmp].writeInt(registro.getTamanho());
-                        tmps[contadorTmp % arqTmp].write(registro.getAnime().toByteArray());
-                    }
-
-                    contadorTmp++;
-                    contadorRegistros = 0;
-                    registros.clear();
-                }
-
-                ponteiroBase = arq.getFilePointer();
+                numeroRodada++;
             }
 
-            // escreverArquivoTXT("tmps/tmp1.db", "tmps/txt1.txt");
-            // escreverArquivoTXT("tmps/tmp2.db", "tmps/txt2.txt");
+            tmp1.close();
+            tmp2.close();
+            tmp3.close();
+            tmp4.close();
 
-            arq.close();
+            escreverArquivoTXT("tmps/tmp1.db", "tmps/txt1.txt");
+            escreverArquivoTXT("tmps/tmp2.db", "tmps/txt2.txt");
+            escreverArquivoTXT("tmps/tmp3.db", "tmps/txt3.txt");
+            escreverArquivoTXT("tmps/tmp4.db", "tmps/txt4.txt");
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -257,7 +380,7 @@ public class IntercalacaoSimples {
             ponteiroBase = arq.getFilePointer();
 
             // Escrever no arquivo de impressão
-            writer.write(registro.toString(ba));
+            writer.write(registro.toString2(ba));
             writer.newLine();
         }
 

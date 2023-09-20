@@ -6,7 +6,7 @@ public class Main {
 
         // menuDoPrograma.TratamentoMenu();
 
-        IntercalacaoSimples intercalacao = new IntercalacaoSimples();
-        intercalacao.intercalacaoBalanceada();
+        IntercalacaoSubstituicao intercalacao = new IntercalacaoSubstituicao();
+        intercalacao.intercalacaoSelecaoSubstituicao();
     }
 }

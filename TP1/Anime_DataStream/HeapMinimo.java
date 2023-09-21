@@ -32,9 +32,10 @@ public class HeapMinimo {
         int indexAtual = tamanho;
         tamanho++;
 
-        while (indexAtual > 0 && heap[indexAtual].getSegmento() <= heap[getIndexPai(indexAtual)].getSegmento()
-                && heap[indexAtual].getRegistro().getIdRegistro() < heap[getIndexPai(indexAtual)].getRegistro()
-                        .getIdRegistro()) {
+        while (indexAtual > 0 && (heap[indexAtual].getSegmento() < heap[getIndexPai(indexAtual)].getSegmento()
+                || (heap[indexAtual].getSegmento() == heap[getIndexPai(indexAtual)].getSegmento()
+                        && heap[indexAtual].getRegistro().getIdRegistro() < heap[getIndexPai(indexAtual)].getRegistro()
+                                .getIdRegistro()))) {
             swapRegistro(indexAtual, getIndexPai(indexAtual));
             indexAtual = getIndexPai(indexAtual);
         }
@@ -61,14 +62,20 @@ public class HeapMinimo {
         int indexFilhoDireito = getIndexFilhoDireito(index);
 
         if (indexFilhoEsquerdo < tamanho
-                && heap[indexFilhoEsquerdo].getSegmento() <= heap[menorIndice].getSegmento() && heap[indexFilhoEsquerdo]
-                        .getRegistro().getIdRegistro() < heap[menorIndice].getRegistro().getIdRegistro()) {
+                && (heap[indexFilhoEsquerdo].getSegmento() < heap[menorIndice].getSegmento()
+                        || (heap[indexFilhoEsquerdo].getSegmento() == heap[menorIndice].getSegmento()
+                                && heap[indexFilhoEsquerdo]
+                                        .getRegistro()
+                                        .getIdRegistro() < heap[menorIndice].getRegistro().getIdRegistro()))) {
             menorIndice = indexFilhoEsquerdo;
         }
 
         if (indexFilhoDireito < tamanho
-                && heap[indexFilhoDireito].getSegmento() <= heap[menorIndice].getSegmento() && heap[indexFilhoDireito]
-                        .getRegistro().getIdRegistro() < heap[menorIndice].getRegistro().getIdRegistro()) {
+                && (heap[indexFilhoDireito].getSegmento() < heap[menorIndice].getSegmento()
+                        || (heap[indexFilhoDireito].getSegmento() == heap[menorIndice].getSegmento()
+                                && heap[indexFilhoDireito]
+                                        .getRegistro()
+                                        .getIdRegistro() < heap[menorIndice].getRegistro().getIdRegistro()))) {
             menorIndice = indexFilhoDireito;
         }
 

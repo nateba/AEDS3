@@ -94,13 +94,15 @@ public class IntercalacaoSubstituicao {
                 registros.remove(0);
             }
 
-            System.out.println(heapMinimo.getRaiz());
+            System.out.println(heapMinimo.getRaiz().getRegistro().getIdRegistro());
 
             RandomAccessFile numeroArquivoEscrita;
             numeroArquivoEscrita = (contadorTmp % 2 == 0) ? tmp1 : tmp2;
 
             // Variável que confere se o segmento deve ser alterado ou não
             RandomAccessFile conferenciaSegmento = numeroArquivoEscrita;
+
+            boolean alternarSegmento = false;
 
             while (heapMinimo.heapVazio() == false) {
                 No no = heapMinimo.retirarRaiz();
@@ -116,23 +118,32 @@ public class IntercalacaoSubstituicao {
                     // Testar se deve ser mantido o segmento
                     if (registros.get(0).getIdRegistro() < no.getRegistro().getIdRegistro()) {
                         // Segmento não pode alternar a todo momento
-                        // segmento = conferenciaSegmento == numeroArquivoEscrita ? segmento : (segmento
-                        // + 1);
-                        segmento++;
+                        alternarSegmento = true;
+                        System.out.println("Troca");
                     }
 
-                    No novoNo = new No(segmento, registros.get(0));
+                    No novoNo = new No();
+
+                    if (alternarSegmento) {
+                        novoNo = new No((segmento + 1), registros.get(0));
+                        alternarSegmento = false;
+                    } else {
+                        novoNo = new No(segmento, registros.get(0));
+                    }
+
                     heapMinimo.inserirRegistro(novoNo);
                     registros.remove(0);
                 }
 
                 conferenciaSegmento = numeroArquivoEscrita;
+
                 // Conferir se todos os segmentos são 1, 2, etc dentro do Heap
                 // Se sim, preciso alternar o número do arquivo de escrita e contadorTmp
                 if (heapMinimo.heapVazio() == false
                         && heapMinimo.getRaiz().getRegistro().getIdRegistro() < no.getRegistro().getIdRegistro()) {
                     contadorTmp++;
                     numeroArquivoEscrita = (contadorTmp % 2 == 0) ? tmp1 : tmp2;
+                    segmento++;
                 }
             }
 

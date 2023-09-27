@@ -5,8 +5,9 @@ public class Indexacao {
     public static void main(String[] args) throws IOException {
 
         // criarListaInvertidaNomes();
-        criarListaInvertidaTypes();
+        // criarListaInvertidaTypes();
 
+        pesquisaListaInvertida("cowboy bepop tengoku", "tv");
     }
 
     public static void criarListaInvertidaNomes() {
@@ -54,8 +55,6 @@ public class Indexacao {
             }
 
             System.out.println("\n==========================\n");
-
-            pesquisaListaInvertida("Naruto", listaInvertida);
 
             gerarArquivoListaInvertida(listaInvertida, "indexacao/listainvertida_nomes.db");
         } catch (Exception e) {
@@ -108,6 +107,9 @@ public class Indexacao {
             throws IOException {
         try {
             RandomAccessFile li = new RandomAccessFile(enderecoArquivo, "rw");
+
+            // Limpar possíveis dados anteriores do arquivo
+            li.setLength(0);
 
             for (ListaInvertida tupla : listaInvertida) {
                 li.seek(li.length());
@@ -228,19 +230,49 @@ public class Indexacao {
         return false;
     }
 
-    // ATUALIZAR PARA UMA FUNÇÃO COM RETORNO
-    // COLOCAR A OPÇÃO DUPLA
-    public static void pesquisaListaInvertida(String pesquisa, ArrayList<ListaInvertida> listaInvertida) {
-        String palavras = substituirCaracteresEspeciais(pesquisa);
-        String[] termos = palavras.split(" ");
-        ArrayList<ArrayList<Integer>> conjuntoTeste = new ArrayList<ArrayList<Integer>>(termos.length);
+    // Função de READ com PESQUISA da Lista Invertida
+    public static void pesquisaListaInvertida(String pesquisaNome, String pesquisaTipo) throws IOException {
+        // Criar uma ArrayList de ArrayLists com os possíveis casos de teste
+        ArrayList<ArrayList<Integer>> conjuntoTeste = new ArrayList<ArrayList<Integer>>();
 
-        for (String termo : termos) {
-            for (ListaInvertida tupla : listaInvertida) {
-                if (tupla.getTermo().equals(termo)) {
-                    conjuntoTeste.add(tupla.getIdRegistro());
+        boolean resultadoNomeEncontrado = false;
+        boolean resultadoTipoEncontrado = false;
+
+        // Caso haja uma pesquisa de NOME
+        if (!pesquisaNome.equals("")) {
+            // Ler o arquivo com a lista de nomes
+            ArrayList<ListaInvertida> listaInvertida = leituraArquivoListaInvertida(
+                    "indexacao/listainvertida_nomes.db");
+
+            String palavras = substituirCaracteresEspeciais(pesquisaNome);
+            String[] termos = palavras.split(" ");
+
+            for (String termo : termos) {
+                for (ListaInvertida tupla : listaInvertida) {
+                    if (tupla.getTermo().equals(termo)) {
+                        conjuntoTeste.add(tupla.getIdRegistro());
+                        resultadoNomeEncontrado = true;
+                    }
                 }
             }
+        } else {
+            resultadoNomeEncontrado = true; // Validar a ausência de pesquisa
+        }
+
+        // Caso haja uma pesquisa de TIPO
+        if (!pesquisaTipo.equals("")) {
+            // Ler o arquivo com a lista de nomes
+            ArrayList<ListaInvertida> listaInvertida = leituraArquivoListaInvertida(
+                    "indexacao/listainvertida_types.db");
+
+            for (ListaInvertida tupla : listaInvertida) {
+                if (tupla.getTermo().equals(pesquisaTipo)) {
+                    conjuntoTeste.add(tupla.getIdRegistro());
+                    resultadoTipoEncontrado = true;
+                }
+            }
+        } else {
+            resultadoTipoEncontrado = true; // Validar a ausência de pesquisa
         }
 
         // Fazer a interseção entre os conjuntos
@@ -252,11 +284,17 @@ public class Indexacao {
 
         List<Integer> resultado = new ArrayList<>(intersecao);
 
-        System.out.println(resultado);
+        if (resultado.size() == 0) {
+            System.out.println("Não existem Animes que correspondam a esses termos!");
+        } else if (resultadoNomeEncontrado && resultadoTipoEncontrado) {
+            System.out.println(resultado);
+        } else {
+            System.out.println("Não existem Animes que correspondam a esses termos!");
+        }
     }
 
-    // Função de criar novos elementos na Lista Invertida
-    public static void criarTupla(Anime anime) throws IOException {
+    // Função de CREATE da Lista Invertida
+    public static void createTupla(Anime anime) throws IOException {
         ArrayList<ListaInvertida> listaInvertidaNomes = new ArrayList<ListaInvertida>();
         ArrayList<ListaInvertida> listaInvertidaTypes = new ArrayList<ListaInvertida>();
 
@@ -319,10 +357,57 @@ public class Indexacao {
         }
     }
 
-    // Função de deletar ID ou tupla
-    public static void deletarTupla(Anime anime) {
-        // Testar se ID existe
-        // Testar se é tamanho 1 -> Jà deleta toda a tupla
-        // Se não, deletar somente o ID
+    // Função de UPDATE da Lista Invertida
+    public static void updateTupla(Anime anime) throws IOException {
+        // Deleta as tuplas antigas
+        deleteTupla(anime);
+
+        // Recria as tuplas atualizadas
+        createTupla(anime);
+    }
+
+    // Função de DELETE da Lista Invertida
+    public static void deleteTupla(Anime anime) throws IOException {
+        // Chamar a função somente se o DELETE do CRUD for válido
+        ArrayList<ListaInvertida> listaInvertidaNomes = new ArrayList<ListaInvertida>();
+        ArrayList<ListaInvertida> listaInvertidaTypes = new ArrayList<ListaInvertida>();
+
+        listaInvertidaNomes = leituraArquivoListaInvertida("indexacao/listainvertida_nomes.db");
+        listaInvertidaTypes = leituraArquivoListaInvertida("indexacao/listainvertida_types.db");
+
+        String nome = substituirCaracteresEspeciais(anime.nome);
+        String[] termosNome = nome.split(" ");
+
+        for (int i = 0; i < termosNome.length; i++) {
+            for (ListaInvertida item : listaInvertidaNomes) {
+                if (termosNome[i].equals(item.getTermo())) {
+                    // Remover o ID da lista de IDs
+                    item.getIdRegistro().remove(Integer.valueOf(anime.idAnime));
+
+                    // Caso o termo tenha ficado vazio de IDs, é preciso deletá-lo
+                    if (item.getIdRegistro().size() == 0) {
+                        listaInvertidaNomes.remove(item);
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        String tipo = substituirCaracteresEspeciais(anime.type);
+
+        for (ListaInvertida item : listaInvertidaTypes) {
+            if (tipo.equals(item.getTermo())) {
+                // Remover o ID da lista de IDs
+                item.getIdRegistro().remove(Integer.valueOf(anime.idAnime));
+
+                // Caso o termo tenha ficado vazio de IDs, é preciso deletá-lo
+                if (item.getIdRegistro().size() == 0) {
+                    listaInvertidaNomes.remove(item);
+                }
+
+                break;
+            }
+        }
     }
 }

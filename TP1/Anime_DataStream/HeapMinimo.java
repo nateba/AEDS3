@@ -42,11 +42,6 @@ public class HeapMinimo {
     }
 
     public No retirarRaiz() {
-        if (tamanho <= 0) {
-            System.out.println("Heap is empty. Cannot extract minimum element.");
-            return null;
-        }
-
         No raiz = heap[0];
         heap[0] = heap[tamanho - 1];
         tamanho--;

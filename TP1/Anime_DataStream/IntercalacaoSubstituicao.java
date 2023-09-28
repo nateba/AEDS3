@@ -99,9 +99,6 @@ public class IntercalacaoSubstituicao {
             RandomAccessFile numeroArquivoEscrita;
             numeroArquivoEscrita = (contadorTmp % 2 == 0) ? tmp1 : tmp2;
 
-            // Variável que confere se o segmento deve ser alterado ou não
-            RandomAccessFile conferenciaSegmento = numeroArquivoEscrita;
-
             boolean alternarSegmento = false;
 
             while (heapMinimo.heapVazio() == false) {
@@ -134,8 +131,6 @@ public class IntercalacaoSubstituicao {
                     heapMinimo.inserirRegistro(novoNo);
                     registros.remove(0);
                 }
-
-                conferenciaSegmento = numeroArquivoEscrita;
 
                 // Conferir se todos os segmentos são 1, 2, etc dentro do Heap
                 // Se sim, preciso alternar o número do arquivo de escrita e contadorTmp

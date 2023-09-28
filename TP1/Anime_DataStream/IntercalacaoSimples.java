@@ -1,13 +1,6 @@
 import java.io.*;
 import java.util.*;
 
-class ComparadorPorId implements Comparator<Registro> {
-    @Override
-    public int compare(Registro r1, Registro r2) {
-        return Integer.compare(r1.getIdRegistro(), r2.getIdRegistro());
-    }
-}
-
 public class IntercalacaoSimples {
     int arqTmp = 2;
     int bloco = 100;
@@ -151,7 +144,13 @@ public class IntercalacaoSimples {
             boolean arquivoOrdenado = false;
 
             while (arquivoOrdenado == false) {
-                System.out.println(numeroRodada);
+                System.out.println("[ Intercalação Rodada " + (numeroRodada + 1) + " ]");
+                System.out.print(".");
+                System.out.print(".");
+                System.out.print(".");
+                System.out.print(".");
+                System.out.println(".");
+
                 if (numeroRodada % 2 == 0) {
                     do {
                         tmp1.seek(0);
@@ -229,10 +228,10 @@ public class IntercalacaoSimples {
                                 numeroArquivoEscrita.write(registro.getAnime().toByteArray());
                             }
 
-                            System.out.println(blocoOrdenavelTmp.size());
-
                             if (blocoOrdenavelTmp.size() >= qtdRegistros) {
                                 arquivoOrdenado = true;
+                                gerarArquivoOrdenado(blocoOrdenavelTmp);
+                                break;
                             }
 
                             blocoOrdenavelTmp.clear();
@@ -318,10 +317,10 @@ public class IntercalacaoSimples {
                                 numeroArquivoEscrita.write(registro.getAnime().toByteArray());
                             }
 
-                            System.out.println(blocoOrdenavelTmp.size());
-
                             if (blocoOrdenavelTmp.size() >= qtdRegistros) {
                                 arquivoOrdenado = true;
+                                gerarArquivoOrdenado(blocoOrdenavelTmp);
+                                break;
                             }
 
                             blocoOrdenavelTmp.clear();
@@ -346,6 +345,24 @@ public class IntercalacaoSimples {
             escreverArquivoTXT("tmps/tmp4.db", "tmps/txt4.txt");
 
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void gerarArquivoOrdenado(ArrayList<Registro> listaOrdenada) throws Exception {
+        try {
+            RandomAccessFile arqFinal = new RandomAccessFile("ordenacao/intercalacao_comum.db", "rw");
+
+            for (Registro registro : listaOrdenada) {
+                arqFinal.seek(arqFinal.length());
+                arqFinal.writeInt(registro.getIdRegistro());
+                arqFinal.writeBoolean(registro.isLapide());
+                arqFinal.writeInt(registro.getTamanho());
+                arqFinal.write(registro.getAnime().toByteArray());
+            }
+
+            arqFinal.close();
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
     }

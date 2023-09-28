@@ -9,68 +9,40 @@ public class Menu {
 
     Scanner input = new Scanner(System.in);
 
-    public void TratamentoMenu() throws IOException {
+    // A variável opção será colocada como global para poder ser acessada por todas
+    // as funções dos diferentes escopos
+    int opcao;
+
+    public void tratamentoMenu() throws IOException {
+        // Exibir o menu de início do programa
         exibirMenuInicial();
 
-        int opcao = input.nextInt();
+        opcao = input.nextInt();
 
-        // Caso opção digitada seja inválida
-        while (opcao != 0 && opcao != 1) {
-            System.out.println("Opção inválida! Tente uma opção existente:");
-            System.out.println("1 - Gerar arquivo animes.db");
-            System.out.println("0 - Sair do programa");
+        // Enquanto a opção não for válida, o menu inicial continuará sendo exibido para
+        // o usuário do programa
+        menuInicial();
 
-            opcao = input.nextInt();
-        }
-
-        // Caso opção inicial seja válida
+        // Se a opção inicial for válida, o programa pode prosseguir
         if (opcao == 1) {
             try {
                 // Passar o path dos arquivos DB e CSV, respectivamente
                 escreverArquivoDB(enderecoDB, enderecoCSV);
+
+                System.out.println("\n•._.••´¯``•.,,.•` VOCÊ ACABOU DE GERAR O ARQUIVO ANIMES.DB! `•.,,.•´´¯`••._.•");
+                System.out.println("\nAgora, vamos te dar algumas opções. O que você gostaria de fazer?");
+
+                // Exibir o menu principal que dará seguimento com o programa
+                while (opcao != 0) {
+                    exibirMenuPrincipal();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
 
-            System.out.println("\nVocê acabou de gerar o arquivo animes.db!");
-            System.out.println("Agora, vamos te dar algumas opções. O que você gostaria de fazer?");
-
-            exibirMenuCRUD();
-
-            opcao = input.nextInt();
-
-            while (opcao != 0) {
-                switch (opcao) {
-                    case 1:
-                        System.out.println("\nVocê quer criar um novo registro. Vamos começar!");
-                        menuCreateRegistro();
-                        break;
-                    case 2:
-                        System.out.println("\nVocê quer pesquisar o ID de um registro. Vamos lá!");
-                        menuReadRegistro();
-                        break;
-                    case 3:
-                        System.out.println("\nVocê quer atualizar as informações de um registro.");
-                        menuUpdateRegistro();
-                        break;
-                    case 4:
-                        System.out.println("\nVocê quer deletar um registro. Tome cuidado!");
-                        menuDeleteRegistro();
-                        break;
-                    case 5:
-                        menuListarRegistro();
-                        break;
-                    case 6:
-                        exibirMenuOrdenacao();
-                        break;
-                }
-
-                System.out.println("\nEscolha outra opção:");
-                exibirMenuCRUD();
-                opcao = input.nextInt();
-            }
-        } else if (opcao == 0) {
-            System.out.println("Obrigado por utilizar o nosso programa!");
+        if (opcao == 0) {
+            System.out.println("\n•._.••´¯``•.,,.•` OBRIGADO POR UTILIZAR O NOSSO PROGRAMA! `•.,,.•´´¯`••._.•\n\n");
         }
 
         input.close();
@@ -78,37 +50,109 @@ public class Menu {
 
     public void exibirMenuInicial() {
         System.out.println(
-                " #####      ##      ####    ######            ####     ######              ##     ##  ##    ####    ##   ##  ######    ####\r\n"
-                        +
-                        " ##  ##    ####    ##  ##   ##                ## ##    ##                 ####    ### ##     ##     ### ###  ##       ##  ##\r\n"
-                        +
-                        " ##  ##   ##  ##   ##       ##                ##  ##   ##                ##  ##   ######     ##     #######  ##       ##\r\n"
-                        +
-                        " #####    ######    ####    ####              ##  ##   ####              ######   ######     ##     ## # ##  ####      ####\r\n"
-                        +
-                        " ##  ##   ##  ##       ##   ##                ##  ##   ##                ##  ##   ## ###     ##     ##   ##  ##           ##\r\n"
-                        +
-                        " ##  ##   ##  ##   ##  ##   ##                ## ##    ##                ##  ##   ##  ##     ##     ##   ##  ##       ##  ##\r\n"
-                        +
-                        " #####    ##  ##    ####    ######            ####     ######            ##  ##   ##  ##    ####    ##   ##  ######    ####\r\n"
-                        +
-                        "\r" +
-                        "");
+                "                                                                                                               \r\n"
+                        + //
+                        "   _|_|    _|      _|  _|_|_|  _|      _|  _|_|_|_|    _|_|_|                      _|_|_|_|_|  _|_|_|      _|  \r\n"
+                        + //
+                        " _|    _|  _|_|    _|    _|    _|_|  _|_|  _|        _|                                _|      _|    _|  _|_|  \r\n"
+                        + //
+                        " _|_|_|_|  _|  _|  _|    _|    _|  _|  _|  _|_|_|      _|_|        _|_|_|_|_|          _|      _|_|_|      _|  \r\n"
+                        + //
+                        " _|    _|  _|    _|_|    _|    _|      _|  _|              _|                          _|      _|          _|  \r\n"
+                        + //
+                        " _|    _|  _|      _|  _|_|_|  _|      _|  _|_|_|_|  _|_|_|                            _|      _|          _|  \r\n"
+                        + //
+                        "                                                                                                               \r\n"
+                        + //
+                        "                                                                                                               ");
 
         System.out.println("Bem-vindo a nossa base de Animes do Trabalho Prático 1!");
         System.out.println("Antes de continuar, o que você gostaria de fazer?");
-        System.out.println("1 - Gerar arquivo animes.db");
-        System.out.println("0 - Sair do programa");
+        System.out.println("[1] Gerar arquivo animes.db");
+        System.out.println("[0] Sair do programa");
     }
 
-    public void exibirMenuCRUD() {
-        System.out.println("1 - Criar um novo Anime");
-        System.out.println("2 - Ler as informações de um Anime");
-        System.out.println("3 - Atualizar um Anime existente");
-        System.out.println("4 - Deletar um Anime");
-        System.out.println("5 - Listar todos os Animes em um arquivo .txt");
-        System.out.println("6 - Aplicar uma ordenacao externa");
-        System.out.println("0 - Sair do programa");
+    public void menuInicial() {
+        // Caso opção digitada seja inválida
+        while (opcao != 0 && opcao != 1) {
+            System.out.println("\nOpção inválida! Tente uma opção existente:");
+            System.out.println("[1] Gerar arquivo animes.db");
+            System.out.println("[0] Sair do programa");
+
+            opcao = input.nextInt();
+        }
+    }
+
+    public void exibirMenuPrincipal() throws IOException {
+        System.out.println("\n==X==X== MENU PRINCIPAL ==X==X==");
+        System.out.println("[1] Acessar o Menu CRUD");
+        System.out.println("[2] Acessar o Menu Ordenação Externa");
+        System.out.println("[3] Acessar o Menu Indexação");
+        System.out.println("[0] Sair do programa");
+
+        opcao = input.nextInt();
+
+        if (opcao != 0) {
+            menuPrincipal();
+        }
+    }
+
+    public void menuPrincipal() throws IOException {
+        switch (opcao) {
+            case 1:
+                exibirMenuCRUD();
+                break;
+            case 2:
+                exibirMenuOrdenacao();
+                break;
+            case 3:
+                break;
+            default:
+                System.out.println("Opção inválida! Tente novamente!");
+        }
+    }
+
+    public void exibirMenuCRUD() throws IOException {
+        System.out.println("\n==X==X== MENU CRUD ==X==X==");
+        System.out.println("[1] Criar um novo Anime");
+        System.out.println("[2] Ler as informações de um Anime");
+        System.out.println("[3] Atualizar um Anime existente");
+        System.out.println("[4] Deletar um Anime");
+        System.out.println("[5] Listar todos os Animes em um arquivo .txt");
+        System.out.println("[0] Voltar");
+
+        opcao = input.nextInt();
+
+        // Chamar o menu com as configurações internas de CRUD
+        if (opcao != 0) {
+            menuCRUD();
+        }
+    }
+
+    public void menuCRUD() throws IOException {
+        switch (opcao) {
+            case 1:
+                System.out.println("\nVocê quer criar um novo registro. Vamos começar!");
+                menuCreateRegistro();
+                break;
+            case 2:
+                System.out.println("\nVocê quer pesquisar o ID de um registro. Vamos lá!");
+                menuReadRegistro();
+                break;
+            case 3:
+                System.out.println("\nVocê quer atualizar as informações de um registro.");
+                menuUpdateRegistro();
+                break;
+            case 4:
+                System.out.println("\nVocê quer deletar um registro. Tome cuidado!");
+                menuDeleteRegistro();
+                break;
+            case 5:
+                menuListarRegistro();
+                break;
+            default:
+                System.out.println("\nOpção inválida! Tente novamente.");
+        }
     }
 
     public void menuCreateRegistro() {
@@ -116,19 +160,19 @@ public class Menu {
 
         Anime anime = new Anime();
         input.nextLine();
-        System.out.println("2.1 - Digite o NOME do novo Anime:");
+        System.out.println("1.1 - Digite o NOME do novo Anime:");
         anime.setNome(input.nextLine());
-        System.out.println("2.2 - Digite o SCORE do novo Anime:");
+        System.out.println("1.2 - Digite o SCORE do novo Anime:");
         anime.setScore(input.nextFloat());
         input.nextLine();
-        System.out.println("2.3 - Digite os GÊNEROS do novo Anime:");
+        System.out.println("1.3 - Digite os GÊNEROS do novo Anime:");
         anime.setGenres(input.nextLine());
-        System.out.println("2.4 - Digite o TIPO do novo Anime:");
+        System.out.println("1.4 - Digite o TIPO do novo Anime:");
         anime.setType(input.nextLine());
-        System.out.println("2.5 - Digite a quantidade de EPISÓDIOS do novo Anime:");
+        System.out.println("1.5 - Digite a quantidade de EPISÓDIOS do novo Anime:");
         anime.setEpisodes(input.nextInt());
         input.nextLine();
-        System.out.println("2.6 - Digite a DATA de exibição do novo Anime (AAAA-MM-DD):");
+        System.out.println("1.6 - Digite a DATA de exibição do novo Anime (AAAA-MM-DD):");
         anime.setAired(input.nextLine());
 
         if (crud.createRegistro(enderecoDB, anime)) {
@@ -148,7 +192,7 @@ public class Menu {
         registro = crud.readRegistro(enderecoDB, idPesquisa);
 
         if (registro != null) {
-            System.out.println("\nRegistro encontrado!");
+            System.out.println("\n•._.••´¯``•.,,.•` REGISTRO ENCONTRADO! `•.,,.•´´¯`••._.•");
             System.out.println(registro.getAnime().toString(registro.getAnime().getAired()));
         } else {
             System.out.println("\nRegistro não encontrado! Tente novamente!");
@@ -166,7 +210,7 @@ public class Menu {
         registro = crud.readRegistro(enderecoDB, idUpdate);
 
         if (registro != null) {
-            System.out.println("\nRegistro encontrado!");
+            System.out.println("\n•._.••´¯``•.,,.•` REGISTRO ENCONTRADO! `•.,,.•´´¯`••._.•");
             System.out.println(registro.getAnime().toString(registro.getAnime().getAired()));
             animeAtualizado = registro.getAnime();
 
@@ -238,42 +282,46 @@ public class Menu {
         try {
             // Passar o path dos arquivos DB e TXT, respectivamente
             escreverArquivoTXT(enderecoDB, enderecoTXT);
-            System.out.println("\nSua lista de animes .txt foi criada!");
+            System.out.println("\n•._.••´¯``•.,,.•` SEU ARQUIVO .TXT DE ANIMES FOI CRIADO! `•.,,.•´´¯`••._.•");
         } catch (Exception e) {
             e.getStackTrace();
         }
     }
 
-    public void exibirMenuOrdenacao() {
-        System.out.println("Voce deseja fazer a ordenacao por qual metodo?");
-        System.out.println("1 - Intercalacao balanceada comum");
-        System.out.println("2 - Intercalacao balanceada com blocos de tamanho variavel");
-        System.out.println("3 - Intercalacao balanceada com selecao por substituicao");
-        System.out.println("4 - Voltar para o menu CRUD");
-        System.out.println("0 - Sair do programa");
+    public void exibirMenuOrdenacao() throws IOException {
+        System.out.println("\n==X==X== MENU ORDENAÇÃO EXTERNA ==X==X==");
+        System.out.println("Você deseja fazer a Ordenação Externa por qual método?");
+        System.out.println("[1] Intercalação balanceada comum");
+        System.out.println("[2] Intercalação balanceada com blocos de tamanho variável");
+        System.out.println("[3] Intercalação balanceada com seleção por substituição");
+        System.out.println("[0] Voltar");
+
+        opcao = input.nextInt();
+
+        // Chamar o menu que controla a Ordenação Externa
+        if (opcao != 0) {
+            menuOrdenacao();
+        }
     }
 
-    public void menuOrdenacao() {
-        int opcao = 0;
+    public void menuOrdenacao() throws IOException {
         switch (opcao) {
             case 1:
-                System.out.println("\nVocê quer criar um novo registro. Vamos começar!");
-                // Intercalação balanceada comum
+                System.out.println("\nINTERCALAÇÃO BALANCEADA COMUM SELECIONADA!");
+                OrdenacaoExterna intercalacaoSimples = new OrdenacaoExterna();
+                intercalacaoSimples.intercalacaoBalanceadaComum();
                 break;
             case 2:
-                System.out.println("\nVocê quer pesquisar o ID de um registro. Vamos lá!");
-                // Intercalação balanceada com blocos de tamanho variável
+                System.out.println("\nINTERCALAÇÃO BALANCEADA COM BLOCOS DE TAMANHO VARIÁVEL SELECIONADA!");
+                menuReadRegistro();
                 break;
             case 3:
-                System.out.println("\nVocê quer atualizar as informações de um registro.");
-                // Intercalação balanceada com seleção por substituição
+                System.out.println("\nINTERCALAÇÃO BALANCEADA COM SELEÇÃO POR SUBSTITUIÇÃO SELECIONADA!");
+                menuUpdateRegistro();
                 break;
-            case 4:
-                System.out.println("\nVocê quer voltar para o menu CRUD?");
-                exibirMenuCRUD();
-                break;
+            default:
+                System.out.println("\nOpção inválida! Tente novamente.");
         }
-        opcao = input.nextInt();
     }
 
     // Funções para lidar com os arquivos externos

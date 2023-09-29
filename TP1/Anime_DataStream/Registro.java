@@ -1,6 +1,6 @@
 import java.io.*;
 
-public class Registro extends Crud {
+public class Registro {
     private int idRegistro;
     private boolean lapide;
     private int tamanho;
@@ -59,6 +59,7 @@ public class Registro extends Crud {
         this.anime = anime;
     }
 
+    // Converter o objeto para bytes
     public byte[] toByteArray() throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
@@ -82,6 +83,7 @@ public class Registro extends Crud {
         anime = anime.fromByteArray(dis.readNBytes(tamanho));
     }
 
+    // Formatação em String para exibição em arquivo .txt
     public String toString(byte[] ba) throws IOException {
         anime.fromByteArray(ba);
 
@@ -92,6 +94,7 @@ public class Registro extends Crud {
                 + "\n\n= = = x = = = x = = = x = = = x = = = x = = =\n";
     }
 
+    // Formatação em String para exibição em arquivo .txt
     public String toString2(byte[] ba) throws IOException {
         return "REGISTRO DE ID " + idRegistro;
     }

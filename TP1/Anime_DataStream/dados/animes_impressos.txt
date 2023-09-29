@@ -1,5 +1,5 @@
 REGISTRO DE ID 1
-Lapide: false
+Lapide: true
 Tamanho: 87
 DADOS DO ANIME
 ID:			1
@@ -1510,20 +1510,6 @@ Aired:		04 abril 2000
 
 = = = x = = = x = = = x = = = x = = = x = = =
 
-REGISTRO DE ID 110
-Lapide: false
-Tamanho: 112
-DADOS DO ANIME
-ID:			110
-Nome:		Saiyuuki Reload Gunlock
-Score:		7,42
-Genres:		Action, Adventure, Comedy, Demons, Drama, Josei, Supernatural
-Type:		TV
-Episodes:	26
-Aired:		02 abril 2004
-
-= = = x = = = x = = = x = = = x = = = x = = =
-
 REGISTRO DE ID 109
 Lapide: false
 Tamanho: 104
@@ -1535,6 +1521,20 @@ Genres:		Action, Adventure, Comedy, Demons, Drama, Josei, Supernatural
 Type:		TV
 Episodes:	25
 Aired:		02 outubro 2003
+
+= = = x = = = x = = = x = = = x = = = x = = =
+
+REGISTRO DE ID 110
+Lapide: false
+Tamanho: 112
+DADOS DO ANIME
+ID:			110
+Nome:		Saiyuuki Reload Gunlock
+Score:		7,42
+Genres:		Action, Adventure, Comedy, Demons, Drama, Josei, Supernatural
+Type:		TV
+Episodes:	26
+Aired:		02 abril 2004
 
 = = = x = = = x = = = x = = = x = = = x = = =
 

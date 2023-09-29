@@ -80,8 +80,10 @@ public class OrdenacaoExterna {
 
     public void distribuicaoComum(String enderecoDB) {
         try {
-            // Abrir o arquivo ANIMES.DB para leitura e escrita
+            // Abrir o arquivo ANIMES.DB somente para leitura
             RandomAccessFile arq = new RandomAccessFile(enderecoDB, "r");
+
+            // Abrir os arquivos temporários para leitura e escrita
             RandomAccessFile tmp1 = new RandomAccessFile("tmps/tmp1.db", "rw");
             RandomAccessFile tmp2 = new RandomAccessFile("tmps/tmp2.db", "rw");
 
@@ -90,14 +92,14 @@ public class OrdenacaoExterna {
             int len;
             boolean lapis;
 
-            // Endereço do ponteiro de início
-            long ponteiroBase = arq.getFilePointer();
-            arq.seek(ponteiroBase + 4);
+            long ponteiroBase = arq.getFilePointer(); // Pegar o endereço do ponteiro de início
+            arq.seek(ponteiroBase + 4); // Saltar os bytes com a informação do maior ID
 
-            int contadorTmp = 0;
+            int contadorTmp = 0; // Variável para alterar entre arquivos temporários
 
             ArrayList<Registro> registros = new ArrayList<Registro>();
 
+            // Enquanto não chegar no fim do arquivo, a repetição acontece
             while (ponteiroBase < arq.length()) {
                 idRegistro = arq.readInt();
                 lapis = arq.readBoolean();
@@ -116,21 +118,26 @@ public class OrdenacaoExterna {
                 ponteiroBase = arq.getFilePointer();
             }
 
+            // Enquanto houver registros no objeto, a repetição acontece
             while (registros.size() > 0) {
                 ArrayList<Registro> blocoOrdenavelTmp = new ArrayList<Registro>();
 
+                // Repetição baseada no tamanho de bloco escolhido
                 for (int i = 0; i < bloco; i++) {
+                    // Pode ser que haja um resto de registros menor que o tamanho do bloco
                     if (registros.size() > 0) {
                         blocoOrdenavelTmp.add(registros.get(0));
                         registros.remove(0);
                     }
                 }
 
+                // Ordenar por meio do ID
                 Collections.sort(blocoOrdenavelTmp, new ComparadorPorId());
 
                 RandomAccessFile numeroArquivoEscrita;
-                numeroArquivoEscrita = (contadorTmp % 2 == 0) ? tmp1 : tmp2;
+                numeroArquivoEscrita = (contadorTmp % 2 == 0) ? tmp1 : tmp2; // Alternar entre arquivos temporários
 
+                // Escrever o bloco gerado no arquivo temporário
                 for (Registro registro : blocoOrdenavelTmp) {
                     numeroArquivoEscrita.seek(numeroArquivoEscrita.length());
                     numeroArquivoEscrita.writeInt(registro.getIdRegistro());
@@ -152,7 +159,10 @@ public class OrdenacaoExterna {
 
     public void distribuicaoSelecao(String enderecoDB) {
         try {
-            RandomAccessFile arq = new RandomAccessFile(enderecoDB, "r"); // Abre arquivo para leitura e escrita
+            // Abrir o arquivo ANIMES.DB somente para leitura
+            RandomAccessFile arq = new RandomAccessFile(enderecoDB, "r");
+
+            // Abrir os arquivos temporários para leitura e escrita
             RandomAccessFile tmp1 = new RandomAccessFile("tmps/tmp1.db", "rw");
             RandomAccessFile tmp2 = new RandomAccessFile("tmps/tmp2.db", "rw");
 
@@ -161,14 +171,14 @@ public class OrdenacaoExterna {
             int len;
             boolean lapis;
 
-            // Endereço do ponteiro de início
-            long ponteiroBase = arq.getFilePointer();
-            arq.seek(ponteiroBase + 4);
+            long ponteiroBase = arq.getFilePointer(); // Pegar o endereço do ponteiro de início
+            arq.seek(ponteiroBase + 4); // Saltar os bytes com a informação do maior ID
 
-            int contadorTmp = 0;
+            int contadorTmp = 0; // Variável para alterar entre arquivos temporários
 
             ArrayList<Registro> registros = new ArrayList<Registro>();
 
+            // Enquanto não chegar no fim do arquivo, a repetição acontece
             while (ponteiroBase < arq.length()) {
                 idRegistro = arq.readInt();
                 lapis = arq.readBoolean();
@@ -187,25 +197,26 @@ public class OrdenacaoExterna {
                 ponteiroBase = arq.getFilePointer();
             }
 
-            // O HEAP PRECISA ACONTECER AQUI
+            // Inicializar o Heap
             HeapMinimo heapMinimo = new HeapMinimo(100);
-            int segmento = 0;
+            int segmento = 0; // Variável para controlar o segmento em cada registro do Heap
 
-            // Montar o heap inicial
+            // Montar o Heap inicial
             while (heapMinimo.heapCheio() == false && registros.size() > 0) {
                 No no = new No(segmento, registros.get(0));
                 heapMinimo.inserirRegistro(no);
 
-                registros.remove(0);
+                registros.remove(0); // Limpar a lista de registros conforme itens são adicionados
             }
 
             RandomAccessFile numeroArquivoEscrita;
-            numeroArquivoEscrita = (contadorTmp % 2 == 0) ? tmp1 : tmp2;
+            numeroArquivoEscrita = (contadorTmp % 2 == 0) ? tmp1 : tmp2; // Alternar entre arquivos temporários
 
             boolean alternarSegmento = false;
 
+            // Enquanto houver itens no Heap, repetição acontece
             while (heapMinimo.heapVazio() == false) {
-                No no = heapMinimo.retirarRaiz();
+                No no = heapMinimo.retirarRaiz(); // Retira o menor elemento
 
                 numeroArquivoEscrita.seek(numeroArquivoEscrita.length());
                 numeroArquivoEscrita.writeInt(no.getRegistro().getIdRegistro());
@@ -213,18 +224,18 @@ public class OrdenacaoExterna {
                 numeroArquivoEscrita.writeInt(no.getRegistro().getTamanho());
                 numeroArquivoEscrita.write(no.getRegistro().getAnime().toByteArray());
 
-                // Ainda existem registros a serem inseridos?
+                // Teste caso ainda existam registros a serem inseridos no Heap
                 if (registros.size() > 0) {
                     // Testar se deve ser mantido o segmento
                     if (registros.get(0).getIdRegistro() < no.getRegistro().getIdRegistro()) {
                         // Segmento não pode alternar a todo momento
                         alternarSegmento = true;
-                        System.out.println("Troca");
                     }
 
                     No novoNo = new No();
 
                     if (alternarSegmento) {
+                        // Alternar o segmento sem alterar o valor da variável
                         novoNo = new No((segmento + 1), registros.get(0));
                         alternarSegmento = false;
                     } else {
@@ -235,13 +246,14 @@ public class OrdenacaoExterna {
                     registros.remove(0);
                 }
 
-                // Conferir se todos os segmentos são 1, 2, etc dentro do Heap
-                // Se sim, preciso alternar o número do arquivo de escrita e contadorTmp
+                // Conferir se a raiz já não pertence mais ao mesmo segmento do arquivo
+                // temporário
+                // Caso positivo, o arquivo temporário deve ser alternado
                 if (heapMinimo.heapVazio() == false
                         && heapMinimo.getRaiz().getRegistro().getIdRegistro() < no.getRegistro().getIdRegistro()) {
                     contadorTmp++;
-                    numeroArquivoEscrita = (contadorTmp % 2 == 0) ? tmp1 : tmp2;
-                    segmento++;
+                    numeroArquivoEscrita = (contadorTmp % 2 == 0) ? tmp1 : tmp2; // Alternar entre arquivos temporários
+                    segmento++; // Incrementar o valor do segmento
                 }
             }
 
@@ -255,6 +267,7 @@ public class OrdenacaoExterna {
 
     public void intercalacaoComum(String caminhoArquivoOrdenado) {
         try {
+            // Abrir os arquivos temporários para leitura e escrita
             RandomAccessFile tmp1 = new RandomAccessFile("tmps/tmp1.db", "rw");
             RandomAccessFile tmp2 = new RandomAccessFile("tmps/tmp2.db", "rw");
             RandomAccessFile tmp3 = new RandomAccessFile("tmps/tmp3.db", "rw");
@@ -265,7 +278,7 @@ public class OrdenacaoExterna {
             ArrayList<Registro> registrosTmp3 = new ArrayList<Registro>();
             ArrayList<Registro> registrosTmp4 = new ArrayList<Registro>();
 
-            int numeroRodada = 0; // Número da rodada de intercalação
+            int numeroRodada = 0; // Variável para controlar o número da rodada de intercalação
 
             byte[] ba;
             int idRegistro;
@@ -276,6 +289,7 @@ public class OrdenacaoExterna {
 
             boolean arquivoOrdenado = false;
 
+            // Enquanto o arquivo não estiver ordenado, a repetição acontece
             while (arquivoOrdenado == false) {
                 System.out.println("[ Intercalação Padrão Rodada " + (numeroRodada + 1) + " ]");
                 System.out.print(".");
@@ -284,12 +298,15 @@ public class OrdenacaoExterna {
                 System.out.print(".");
                 System.out.println(".");
 
+                // Alternar os temporários de acordo com o valor da rodada
                 if (numeroRodada % 2 == 0) {
+                    // Rodar o do-while enquanto os arquivos temporários de leitura possuírem
+                    // registros
                     do {
                         tmp1.seek(0);
-                        ponteiroBase = tmp1.getFilePointer();
+                        ponteiroBase = tmp1.getFilePointer(); // Pegar o endereço do ponteiro de início
 
-                        // Varre o arquivo temporário 1
+                        // Enquanto o arquivo temporário não for varrido, a repetição acontece
                         while (ponteiroBase < tmp1.length()) {
                             idRegistro = tmp1.readInt();
                             lapis = tmp1.readBoolean();
@@ -307,9 +324,9 @@ public class OrdenacaoExterna {
                         }
 
                         tmp2.seek(0);
-                        ponteiroBase = tmp2.getFilePointer();
+                        ponteiroBase = tmp2.getFilePointer(); // Pegar o endereço do ponteiro de início
 
-                        // Varre o arquivo temporário 2
+                        // Enquanto o arquivo temporário não for varrido, a repetição acontece
                         while (ponteiroBase < tmp2.length()) {
                             idRegistro = tmp2.readInt();
                             lapis = tmp2.readBoolean();
@@ -326,14 +343,16 @@ public class OrdenacaoExterna {
                             ponteiroBase = tmp2.getFilePointer();
                         }
 
+                        // Limpar os arquivos para possível futura reescrita
                         tmp1.setLength(0);
                         tmp2.setLength(0);
 
-                        int rodadaArquivo = 0;
+                        int rodadaArquivo = 0; // Variável que controla os arquivos temporários de escrita
 
                         while (registrosTmp1.size() > 0 || registrosTmp2.size() > 0) {
                             ArrayList<Registro> blocoOrdenavelTmp = new ArrayList<Registro>();
 
+                            // Aumentar a quantidade de blocos de acordo com a rodada
                             for (int i = 0; i < (bloco * Math.pow(2, numeroRodada)); i++) {
                                 if (registrosTmp1.size() > 0) {
                                     blocoOrdenavelTmp.add(registrosTmp1.get(0));
@@ -348,9 +367,11 @@ public class OrdenacaoExterna {
                                 }
                             }
 
+                            // Ordenar os registros
                             Collections.sort(blocoOrdenavelTmp, new ComparadorPorId());
 
                             RandomAccessFile numeroArquivoEscrita;
+                            // Alternar entre arquivos temporários
                             numeroArquivoEscrita = (rodadaArquivo % 2 == 0) ? tmp3 : tmp4;
 
                             for (Registro registro : blocoOrdenavelTmp) {
@@ -361,6 +382,7 @@ public class OrdenacaoExterna {
                                 numeroArquivoEscrita.write(registro.getAnime().toByteArray());
                             }
 
+                            // Testar se está ordenado baseado no número de registros
                             if (blocoOrdenavelTmp.size() >= qtdRegistros) {
                                 arquivoOrdenado = true;
                                 gerarArquivoOrdenado(blocoOrdenavelTmp, caminhoArquivoOrdenado);
@@ -371,14 +393,15 @@ public class OrdenacaoExterna {
 
                             rodadaArquivo++;
                         }
-
                     } while (registrosTmp1.size() > 0 || registrosTmp2.size() > 0);
                 } else {
+                    // Rodar o do-while enquanto os arquivos temporários de leitura possuírem
+                    // registros
                     do {
                         tmp3.seek(0);
-                        ponteiroBase = tmp3.getFilePointer();
+                        ponteiroBase = tmp3.getFilePointer(); // Pegar o endereço do ponteiro de início
 
-                        // Varre o arquivo temporário 3
+                        // Enquanto o arquivo temporário não for varrido, a repetição acontece
                         while (ponteiroBase < tmp3.length()) {
                             idRegistro = tmp3.readInt();
                             lapis = tmp3.readBoolean();
@@ -396,9 +419,9 @@ public class OrdenacaoExterna {
                         }
 
                         tmp4.seek(0);
-                        ponteiroBase = tmp4.getFilePointer();
+                        ponteiroBase = tmp4.getFilePointer(); // Pegar o endereço do ponteiro de início
 
-                        // Varre o arquivo temporário 2
+                        // Enquanto o arquivo temporário não for varrido, a repetição acontece
                         while (ponteiroBase < tmp4.length()) {
                             idRegistro = tmp4.readInt();
                             lapis = tmp4.readBoolean();
@@ -415,14 +438,16 @@ public class OrdenacaoExterna {
                             ponteiroBase = tmp4.getFilePointer();
                         }
 
+                        // Limpar os arquivos para possível futura reescrita
                         tmp3.setLength(0);
                         tmp4.setLength(0);
 
-                        int rodadaArquivo = 0;
+                        int rodadaArquivo = 0; // Variável que controla os arquivos temporários de escrita
 
                         while (registrosTmp3.size() > 0 || registrosTmp4.size() > 0) {
                             ArrayList<Registro> blocoOrdenavelTmp = new ArrayList<Registro>();
 
+                            // Aumentar a quantidade de blocos de acordo com a rodada
                             for (int i = 0; i < (bloco * Math.pow(2, numeroRodada)); i++) {
                                 if (registrosTmp3.size() > 0) {
                                     blocoOrdenavelTmp.add(registrosTmp3.get(0));
@@ -437,9 +462,11 @@ public class OrdenacaoExterna {
                                 }
                             }
 
+                            // Ordenar os registros
                             Collections.sort(blocoOrdenavelTmp, new ComparadorPorId());
 
                             RandomAccessFile numeroArquivoEscrita;
+                            // Alternar entre arquivos temporários
                             numeroArquivoEscrita = (rodadaArquivo % 2 == 0) ? tmp1 : tmp2;
 
                             for (Registro registro : blocoOrdenavelTmp) {
@@ -450,6 +477,7 @@ public class OrdenacaoExterna {
                                 numeroArquivoEscrita.write(registro.getAnime().toByteArray());
                             }
 
+                            // Testar se está ordenado baseado no número de registros
                             if (blocoOrdenavelTmp.size() >= qtdRegistros) {
                                 arquivoOrdenado = true;
                                 gerarArquivoOrdenado(blocoOrdenavelTmp, caminhoArquivoOrdenado);
@@ -484,6 +512,7 @@ public class OrdenacaoExterna {
 
     public void intercalacaoVariavel(String caminhoArquivoOrdenado) {
         try {
+            // Abrir os arquivos temporários para leitura e escrita
             RandomAccessFile tmp1 = new RandomAccessFile("tmps/tmp1.db", "rw");
             RandomAccessFile tmp2 = new RandomAccessFile("tmps/tmp2.db", "rw");
             RandomAccessFile tmp3 = new RandomAccessFile("tmps/tmp3.db", "rw");
@@ -494,7 +523,7 @@ public class OrdenacaoExterna {
             ArrayList<Registro> registrosTmp3 = new ArrayList<Registro>();
             ArrayList<Registro> registrosTmp4 = new ArrayList<Registro>();
 
-            int numeroRodada = 0; // Número da rodada de intercalação
+            int numeroRodada = 0; // Variável para controlar o número da rodada de intercalação
 
             byte[] ba;
             int idRegistro;
@@ -505,6 +534,7 @@ public class OrdenacaoExterna {
 
             boolean arquivoOrdenado = false;
 
+            // Enquanto o arquivo não estiver ordenado, a repetição acontece
             while (arquivoOrdenado == false) {
                 System.out.println("[ Intercalação Variável Rodada " + (numeroRodada + 1) + " ]");
                 System.out.print(".");
@@ -513,12 +543,15 @@ public class OrdenacaoExterna {
                 System.out.print(".");
                 System.out.println(".");
 
+                // Alternar os temporários de acordo com o valor da rodada
                 if (numeroRodada % 2 == 0) {
+                    // Rodar o do-while enquanto os arquivos temporários de leitura possuírem
+                    // registros
                     do {
                         tmp1.seek(0);
-                        ponteiroBase = tmp1.getFilePointer();
+                        ponteiroBase = tmp1.getFilePointer(); // Pegar o endereço do ponteiro de início
 
-                        // Varre o arquivo temporário 1
+                        // Enquanto o arquivo temporário não for varrido, a repetição acontece
                         while (ponteiroBase < tmp1.length()) {
                             idRegistro = tmp1.readInt();
                             lapis = tmp1.readBoolean();
@@ -536,9 +569,9 @@ public class OrdenacaoExterna {
                         }
 
                         tmp2.seek(0);
-                        ponteiroBase = tmp2.getFilePointer();
+                        ponteiroBase = tmp2.getFilePointer(); // Pegar o endereço do ponteiro de início
 
-                        // Varre o arquivo temporário 2
+                        // Enquanto o arquivo temporário não for varrido, a repetição acontece
                         while (ponteiroBase < tmp2.length()) {
                             idRegistro = tmp2.readInt();
                             lapis = tmp2.readBoolean();
@@ -555,20 +588,24 @@ public class OrdenacaoExterna {
                             ponteiroBase = tmp2.getFilePointer();
                         }
 
+                        // Limpar os arquivos para possível futura reescrita
                         tmp1.setLength(0);
                         tmp2.setLength(0);
 
-                        int rodadaArquivo = 0;
+                        int rodadaArquivo = 0; // Variável que controla os arquivos temporários de escrita
 
                         while (registrosTmp1.size() > 0 || registrosTmp2.size() > 0) {
                             ArrayList<Registro> blocoOrdenavelTmp = new ArrayList<Registro>();
 
+                            // Aumentar a quantidade de blocos de acordo com a rodada
                             for (int i = 0; i < (bloco * Math.pow(2, numeroRodada)); i++) {
                                 if (registrosTmp1.size() > 0) {
                                     blocoOrdenavelTmp.add(registrosTmp1.get(0));
                                     registrosTmp1.remove(0);
                                 }
 
+                                // Caso o próximo elemento já esteja ordenado, a repetição de 'for' pode rodar
+                                // mais uma vez
                                 if (i == ((bloco * Math.pow(2, numeroRodada)) - 1) && registrosTmp1.size() > 0
                                         && blocoOrdenavelTmp
                                                 .get(blocoOrdenavelTmp.size() - 1).getIdRegistro() < registrosTmp1
@@ -591,9 +628,11 @@ public class OrdenacaoExterna {
                                 }
                             }
 
+                            // Ordenar os registros
                             Collections.sort(blocoOrdenavelTmp, new ComparadorPorId());
 
                             RandomAccessFile numeroArquivoEscrita;
+                            // Alternar entre arquivos temporários
                             numeroArquivoEscrita = (rodadaArquivo % 2 == 0) ? tmp3 : tmp4;
 
                             for (Registro registro : blocoOrdenavelTmp) {
@@ -604,6 +643,7 @@ public class OrdenacaoExterna {
                                 numeroArquivoEscrita.write(registro.getAnime().toByteArray());
                             }
 
+                            // Testar se está ordenado baseado no número de registros
                             if (blocoOrdenavelTmp.size() >= qtdRegistros) {
                                 arquivoOrdenado = true;
                                 gerarArquivoOrdenado(blocoOrdenavelTmp, caminhoArquivoOrdenado);
@@ -619,9 +659,9 @@ public class OrdenacaoExterna {
                 } else {
                     do {
                         tmp3.seek(0);
-                        ponteiroBase = tmp3.getFilePointer();
+                        ponteiroBase = tmp3.getFilePointer();// Pegar o endereço do ponteiro de início
 
-                        // Varre o arquivo temporário 3
+                        // Enquanto o arquivo temporário não for varrido, a repetição acontece
                         while (ponteiroBase < tmp3.length()) {
                             idRegistro = tmp3.readInt();
                             lapis = tmp3.readBoolean();
@@ -639,9 +679,9 @@ public class OrdenacaoExterna {
                         }
 
                         tmp4.seek(0);
-                        ponteiroBase = tmp4.getFilePointer();
+                        ponteiroBase = tmp4.getFilePointer();// Pegar o endereço do ponteiro de início
 
-                        // Varre o arquivo temporário 2
+                        // Enquanto o arquivo temporário não for varrido, a repetição acontece
                         while (ponteiroBase < tmp4.length()) {
                             idRegistro = tmp4.readInt();
                             lapis = tmp4.readBoolean();
@@ -658,19 +698,23 @@ public class OrdenacaoExterna {
                             ponteiroBase = tmp4.getFilePointer();
                         }
 
+                        // Limpar os arquivos para possível futura reescrita
                         tmp3.setLength(0);
                         tmp4.setLength(0);
 
-                        int rodadaArquivo = 0;
+                        int rodadaArquivo = 0; // Variável que controla os arquivos temporários de escrita
 
                         while (registrosTmp3.size() > 0 || registrosTmp4.size() > 0) {
                             ArrayList<Registro> blocoOrdenavelTmp = new ArrayList<Registro>();
 
+                            // Aumentar a quantidade de blocos de acordo com a rodada
                             for (int i = 0; i < (bloco * Math.pow(2, numeroRodada)); i++) {
                                 if (registrosTmp3.size() > 0) {
                                     blocoOrdenavelTmp.add(registrosTmp3.get(0));
                                     registrosTmp3.remove(0);
 
+                                    // Caso o próximo elemento já esteja ordenado, a repetição de 'for' pode rodar
+                                    // mais uma vez
                                     if (i == ((bloco * Math.pow(2, numeroRodada)) - 1) && registrosTmp3.size() > 0
                                             && blocoOrdenavelTmp
                                                     .get(blocoOrdenavelTmp.size() - 1).getIdRegistro() < registrosTmp3
@@ -694,9 +738,11 @@ public class OrdenacaoExterna {
                                 }
                             }
 
+                            // Ordenar os registros
                             Collections.sort(blocoOrdenavelTmp, new ComparadorPorId());
 
                             RandomAccessFile numeroArquivoEscrita;
+                            // Alternar entre arquivos temporários
                             numeroArquivoEscrita = (rodadaArquivo % 2 == 0) ? tmp1 : tmp2;
 
                             for (Registro registro : blocoOrdenavelTmp) {
@@ -707,6 +753,7 @@ public class OrdenacaoExterna {
                                 numeroArquivoEscrita.write(registro.getAnime().toByteArray());
                             }
 
+                            // Testar se está ordenado baseado no número de registros
                             if (blocoOrdenavelTmp.size() >= qtdRegistros) {
                                 arquivoOrdenado = true;
                                 gerarArquivoOrdenado(blocoOrdenavelTmp, caminhoArquivoOrdenado);
@@ -742,8 +789,10 @@ public class OrdenacaoExterna {
     public void gerarArquivoOrdenado(ArrayList<Registro> listaOrdenada, String caminhoArquivoOrdenado)
             throws Exception {
         try {
+            // Abrir o arquivo .db ordenado para leitura e escrita
             RandomAccessFile arqFinal = new RandomAccessFile(caminhoArquivoOrdenado, "rw");
 
+            // Escrever todos os registros no arquivo .db
             for (Registro registro : listaOrdenada) {
                 arqFinal.seek(arqFinal.length());
                 arqFinal.writeInt(registro.getIdRegistro());

@@ -1,5 +1,5 @@
 public class No {
-    private int segmento;
+    private int segmento; // Armazenar o valor do segmento para o Heap
     private Registro registro;
 
     public No() {

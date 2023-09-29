@@ -2,7 +2,7 @@ import java.util.ArrayList;
 
 public class ListaInvertida {
     private String termo;
-    private ArrayList<Integer> listaDeIds;
+    private ArrayList<Integer> listaDeIds; // Armazenar todos os IDs em uma lista
 
     public ListaInvertida() {
         this.termo = "";

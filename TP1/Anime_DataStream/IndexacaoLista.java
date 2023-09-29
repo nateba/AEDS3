@@ -1,7 +1,7 @@
 import java.io.*;
 import java.util.*;
 
-public class Indexacao {
+public class IndexacaoLista {
     public static void main(String[] args) throws IOException {
 
         // criarListaInvertidaNomes();
@@ -10,7 +10,7 @@ public class Indexacao {
         pesquisaListaInvertida("cowboy bepop tengoku", "tv");
     }
 
-    public static void criarListaInvertidaNomes() {
+    public void criarListaInvertidaNomes() {
         try {
             ArrayList<Registro> registros = new ArrayList<Registro>();
             registros = geraListaRegistros();
@@ -62,7 +62,7 @@ public class Indexacao {
         }
     }
 
-    public static void criarListaInvertidaTypes() {
+    public void criarListaInvertidaTypes() {
         try {
             ArrayList<Registro> registros = new ArrayList<Registro>();
             registros = geraListaRegistros();

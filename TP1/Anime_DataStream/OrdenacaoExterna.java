@@ -13,66 +13,75 @@ public class OrdenacaoExterna {
 
     int qtdRegistros = 0;
 
+    // Criar o passo a passo da Intercalação Balanceada Comum
     public void intercalacaoBalanceadaComum() {
+        // Conta o número de registros para interromper a contagem quando ordenado
         qtdRegistros = contaRegistros("dados/animes.db");
-
+        // Chama a distribuição comum
         distribuicaoComum("dados/animes.db");
-
-        intercalacaoComum();
+        // Chama a intercalação comum
+        intercalacaoComum("ordenacao/intercalacao_comum.db");
     }
 
+    // Criar o passo a passo da Intercalação Balanceada com Blocos de Tamanho
+    // Variável
     public void intercalacaoBalanceadaVariavel() {
+        // Conta o número de registros para interromper a contagem quando ordenado
         qtdRegistros = contaRegistros("dados/animes.db");
-
+        // Chama a distribuição comum
         distribuicaoComum("dados/animes.db");
-
-        intercalacaoVariavel();
+        // Intercalação variável otimiza a intercalação
+        intercalacaoVariavel("ordenacao/intercalacao_variavel.db");
     }
 
+    // Criar o passo a passo da Intercalação Balanceada com Seleção por Substituição
     public void intercalacaoBalanceadaSubstituicao() {
+        // Conta o número de registros para interromper a contagem quando ordenado
         qtdRegistros = contaRegistros("dados/animes.db");
-
+        // Intercalação por substituição otimiza a distribuição
         distribuicaoSelecao("dados/animes.db");
-
-        intercalacaoComum();
+        // Chama a intercalação comum
+        intercalacaoComum("ordenacao/intercalacao_substituicao.db");
     }
 
     public int contaRegistros(String enderecoDB) {
         int totalRegistros = 0;
 
-        // Leitura dos registros
+        // Leitura dos registros do arquivo ANIMES.DB
         try (RandomAccessFile arq = new RandomAccessFile(enderecoDB, "r")) {
-            // Endereço do ponteiro de início
+            // Armazenar o endereço do ponteiro de início do arquivo
             long ponteiroBase = arq.getFilePointer();
-            arq.seek(ponteiroBase + 4);
+            arq.seek(ponteiroBase + 4); // Saltar o dado de "Maior ID"
 
+            // Enquando não chegar no final do arquivo, o loop continua
             while (ponteiroBase < arq.length()) {
-                arq.readInt(); // Lê o ID
+                arq.readInt(); // Lê o ID do registro
 
-                boolean lapide = arq.readBoolean();
-
+                boolean lapide = arq.readBoolean(); // Lê a lápide do registro
+                // Se o arquivo não tiver sido deletado, ele entra na contagem
                 if (lapide == false) {
                     totalRegistros++;
                 }
 
+                // O bloco de código abaixo serve para saltar os bytes de dados do arquivo,
+                // visto que agora o objetivo é apenas uma contagem simples, sem leitura de
+                // dados
                 int tamanhoRegistro = arq.readInt();
-
                 ponteiroBase = arq.getFilePointer();
-
-                arq.seek(ponteiroBase + tamanhoRegistro);
-
-                ponteiroBase = arq.getFilePointer();
+                arq.seek(ponteiroBase + tamanhoRegistro); // Salta os bytes
+                ponteiroBase = arq.getFilePointer(); // Atualiza o ponteiro de controle
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return totalRegistros;
+        return totalRegistros; // Retorna a contagem
     }
 
     public void distribuicaoComum(String enderecoDB) {
         try {
-            RandomAccessFile arq = new RandomAccessFile(enderecoDB, "r"); // Abre arquivo para leitura e escrita
+            // Abrir o arquivo ANIMES.DB para leitura e escrita
+            RandomAccessFile arq = new RandomAccessFile(enderecoDB, "r");
             RandomAccessFile tmp1 = new RandomAccessFile("tmps/tmp1.db", "rw");
             RandomAccessFile tmp2 = new RandomAccessFile("tmps/tmp2.db", "rw");
 
@@ -190,8 +199,6 @@ public class OrdenacaoExterna {
                 registros.remove(0);
             }
 
-            System.out.println(heapMinimo.getRaiz().getRegistro().getIdRegistro());
-
             RandomAccessFile numeroArquivoEscrita;
             numeroArquivoEscrita = (contadorTmp % 2 == 0) ? tmp1 : tmp2;
 
@@ -241,15 +248,12 @@ public class OrdenacaoExterna {
             arq.close();
             tmp1.close();
             tmp2.close();
-
-            escreverArquivoTXT("tmps/tmp1.db", "tmps/txt1.txt");
-            escreverArquivoTXT("tmps/tmp2.db", "tmps/txt2.txt");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void intercalacaoComum() {
+    public void intercalacaoComum(String caminhoArquivoOrdenado) {
         try {
             RandomAccessFile tmp1 = new RandomAccessFile("tmps/tmp1.db", "rw");
             RandomAccessFile tmp2 = new RandomAccessFile("tmps/tmp2.db", "rw");
@@ -273,7 +277,7 @@ public class OrdenacaoExterna {
             boolean arquivoOrdenado = false;
 
             while (arquivoOrdenado == false) {
-                System.out.println("[ Intercalação Rodada " + (numeroRodada + 1) + " ]");
+                System.out.println("[ Intercalação Padrão Rodada " + (numeroRodada + 1) + " ]");
                 System.out.print(".");
                 System.out.print(".");
                 System.out.print(".");
@@ -359,7 +363,7 @@ public class OrdenacaoExterna {
 
                             if (blocoOrdenavelTmp.size() >= qtdRegistros) {
                                 arquivoOrdenado = true;
-                                gerarArquivoOrdenado(blocoOrdenavelTmp);
+                                gerarArquivoOrdenado(blocoOrdenavelTmp, caminhoArquivoOrdenado);
                                 break;
                             }
 
@@ -448,7 +452,7 @@ public class OrdenacaoExterna {
 
                             if (blocoOrdenavelTmp.size() >= qtdRegistros) {
                                 arquivoOrdenado = true;
-                                gerarArquivoOrdenado(blocoOrdenavelTmp);
+                                gerarArquivoOrdenado(blocoOrdenavelTmp, caminhoArquivoOrdenado);
                                 break;
                             }
 
@@ -463,22 +467,22 @@ public class OrdenacaoExterna {
                 numeroRodada++;
             }
 
+            // Limpar os arquivos temporários
+            tmp1.setLength(0);
+            tmp2.setLength(0);
+            tmp3.setLength(0);
+            tmp4.setLength(0);
+
             tmp1.close();
             tmp2.close();
             tmp3.close();
             tmp4.close();
-
-            escreverArquivoTXT("tmps/tmp1.db", "tmps/txt1.txt");
-            escreverArquivoTXT("tmps/tmp2.db", "tmps/txt2.txt");
-            escreverArquivoTXT("tmps/tmp3.db", "tmps/txt3.txt");
-            escreverArquivoTXT("tmps/tmp4.db", "tmps/txt4.txt");
-
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void intercalacaoVariavel() {
+    public void intercalacaoVariavel(String caminhoArquivoOrdenado) {
         try {
             RandomAccessFile tmp1 = new RandomAccessFile("tmps/tmp1.db", "rw");
             RandomAccessFile tmp2 = new RandomAccessFile("tmps/tmp2.db", "rw");
@@ -502,7 +506,13 @@ public class OrdenacaoExterna {
             boolean arquivoOrdenado = false;
 
             while (arquivoOrdenado == false) {
-                System.out.println(numeroRodada);
+                System.out.println("[ Intercalação Variável Rodada " + (numeroRodada + 1) + " ]");
+                System.out.print(".");
+                System.out.print(".");
+                System.out.print(".");
+                System.out.print(".");
+                System.out.println(".");
+
                 if (numeroRodada % 2 == 0) {
                     do {
                         tmp1.seek(0);
@@ -594,10 +604,10 @@ public class OrdenacaoExterna {
                                 numeroArquivoEscrita.write(registro.getAnime().toByteArray());
                             }
 
-                            System.out.println(blocoOrdenavelTmp.size());
-
                             if (blocoOrdenavelTmp.size() >= qtdRegistros) {
                                 arquivoOrdenado = true;
+                                gerarArquivoOrdenado(blocoOrdenavelTmp, caminhoArquivoOrdenado);
+                                break;
                             }
 
                             blocoOrdenavelTmp.clear();
@@ -697,10 +707,10 @@ public class OrdenacaoExterna {
                                 numeroArquivoEscrita.write(registro.getAnime().toByteArray());
                             }
 
-                            System.out.println(blocoOrdenavelTmp.size());
-
                             if (blocoOrdenavelTmp.size() >= qtdRegistros) {
                                 arquivoOrdenado = true;
+                                gerarArquivoOrdenado(blocoOrdenavelTmp, caminhoArquivoOrdenado);
+                                break;
                             }
 
                             blocoOrdenavelTmp.clear();
@@ -714,24 +724,25 @@ public class OrdenacaoExterna {
                 numeroRodada++;
             }
 
+            // Limpar os arquivos temporários
+            tmp1.setLength(0);
+            tmp2.setLength(0);
+            tmp3.setLength(0);
+            tmp4.setLength(0);
+
             tmp1.close();
             tmp2.close();
             tmp3.close();
             tmp4.close();
-
-            escreverArquivoTXT("tmps/tmp1.db", "tmps/txt1.txt");
-            escreverArquivoTXT("tmps/tmp2.db", "tmps/txt2.txt");
-            escreverArquivoTXT("tmps/tmp3.db", "tmps/txt3.txt");
-            escreverArquivoTXT("tmps/tmp4.db", "tmps/txt4.txt");
-
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void gerarArquivoOrdenado(ArrayList<Registro> listaOrdenada) throws Exception {
+    public void gerarArquivoOrdenado(ArrayList<Registro> listaOrdenada, String caminhoArquivoOrdenado)
+            throws Exception {
         try {
-            RandomAccessFile arqFinal = new RandomAccessFile("ordenacao/intercalacao_comum.db", "rw");
+            RandomAccessFile arqFinal = new RandomAccessFile(caminhoArquivoOrdenado, "rw");
 
             for (Registro registro : listaOrdenada) {
                 arqFinal.seek(arqFinal.length());
@@ -745,43 +756,5 @@ public class OrdenacaoExterna {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-    }
-
-    public void escreverArquivoTXT(String enderecoDB, String enderecoTXT) throws Exception {
-        // Leitura dos registros
-        RandomAccessFile arq = new RandomAccessFile(enderecoDB, "r");
-
-        // Escrever os registros para impressão
-        BufferedWriter writer = new BufferedWriter(new FileWriter(enderecoTXT));
-
-        byte[] ba;
-        int idTeste;
-        int len;
-        boolean lapis;
-
-        // Endereço do ponteiro de início
-        long ponteiroBase = arq.getFilePointer();
-        arq.seek(ponteiroBase);
-
-        while (ponteiroBase < arq.length()) {
-            idTeste = arq.readInt();
-            lapis = arq.readBoolean();
-            len = arq.readInt();
-
-            ba = new byte[len];
-            arq.read(ba);
-
-            Registro registro = new Registro();
-            registro.fromByteArray(idTeste, lapis, len, ba);
-
-            ponteiroBase = arq.getFilePointer();
-
-            // Escrever no arquivo de impressão
-            writer.write(registro.toString2(ba));
-            writer.newLine();
-        }
-
-        writer.close();
-        arq.close();
     }
 }

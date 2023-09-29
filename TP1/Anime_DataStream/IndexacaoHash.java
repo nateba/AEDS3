@@ -64,15 +64,54 @@ public class IndexacaoHash {
             Diretorio diretorio = new Diretorio();
 
             for (Registro registro : registros) {
-                int resultHash = Hash(registro, diretorio);
-                if (resultHash == diretorio.getBucket().getProfundidadeLocal()) {
-                    if (diretorio.getBucket().getRegistros().size() < tamMaxBucket) {
-                        diretorio.getBucket().getRegistros().add(registro);
-                    }
 
+                int resultHash = Hash(registro, diretorio);
+
+                if (hashFlexivel.getDiretorios().get(resultHash).getBucket().getProfundidadeLocal() == hashFlexivel
+                        .getTamanho()) {
+                    Bucket bucket = hashFlexivel.getDiretorios().get(resultHash).getBucket();
+                    if (bucket.getRegistros().size() < tamMaxBucket) {
+                        bucket.getRegistros().add(registro);
+                    } else {
+                        // Se o bucket estiver cheio, aumente a profundidade global
+                        aumentaProfundidade(hashFlexivel);
+                        // Recalcula o índice com a nova profundidade global
+                        resultHash = Hash(registro, diretorio);
+                        // Obtém o novo bucket
+                        bucket = hashFlexivel.getDiretorios().get(resultHash).getBucket();
+                        // Adiciona o registro ao novo bucket
+                        bucket.getRegistros().add(registro);
+                    }
                 }
             }
 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void aumentaProfundidade(HashFlexivel hashFlexivel) {
+        try {
+            int novoTamanho = hashFlexivel.getTamanho() * 2; // Novo tamanho é o dobro do tamanho atual
+            ArrayList<Diretorio> novosDiretorios = new ArrayList<>(novoTamanho);
+
+            // Copia os diretórios existentes para os novos diretórios
+            for (int i = 0; i < novoTamanho; i++) {
+                if (i < hashFlexivel.getTamanho()) {
+                    novosDiretorios.add(hashFlexivel.getDiretorios().get(i));
+                } else {
+                    novosDiretorios.add(hashFlexivel.getDiretorios().get(i - hashFlexivel.getTamanho()));
+                }
+            }
+
+            // Atualiza o tamanho e os diretórios
+            hashFlexivel.setTamanho(novoTamanho);
+            hashFlexivel.setDiretorios(novosDiretorios);
+
+            // Atualiza a profundidade global em todos os diretórios
+            for (Diretorio diretorio : hashFlexivel.getDiretorios()) {
+                diretorio.setProfundidadeGlobal(hashFlexivel.getTamanho());
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -96,7 +135,8 @@ public class IndexacaoHash {
 
             }
 
-            li.close();
+            arqIndice.close();
+            arqHash.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

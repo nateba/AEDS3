@@ -106,6 +106,7 @@ public class Menu {
                 exibirMenuOrdenacao();
                 break;
             case 3:
+                exibirMenuIndexacao();
                 break;
             default:
                 System.out.println("Opção inválida! Tente novamente!");
@@ -313,14 +314,91 @@ public class Menu {
                 break;
             case 2:
                 System.out.println("\nINTERCALAÇÃO BALANCEADA COM BLOCOS DE TAMANHO VARIÁVEL SELECIONADA!");
-                menuReadRegistro();
+                OrdenacaoExterna intercalacaoVariavel = new OrdenacaoExterna();
+                intercalacaoVariavel.intercalacaoBalanceadaVariavel();
                 break;
             case 3:
                 System.out.println("\nINTERCALAÇÃO BALANCEADA COM SELEÇÃO POR SUBSTITUIÇÃO SELECIONADA!");
-                menuUpdateRegistro();
+                OrdenacaoExterna intercalacaoSubstituicao = new OrdenacaoExterna();
+                intercalacaoSubstituicao.intercalacaoBalanceadaSubstituicao();
                 break;
             default:
                 System.out.println("\nOpção inválida! Tente novamente.");
+        }
+    }
+
+    public void exibirMenuIndexacao() throws IOException {
+        System.out.println("\n==X==X== MENU INDEXAÇÃO ==X==X==");
+        System.out.println("Você deseja acessar qual Estrutura de Indexação?");
+        System.out.println("[1] Hash Extensível");
+        System.out.println("[2] Lista Invertida");
+        System.out.println("[0] Voltar");
+
+        opcao = input.nextInt();
+
+        // Chamar o menu que levará à uma Estrutura de Indexação
+        if (opcao != 0) {
+            menuIndexacao();
+        }
+    }
+
+    public void menuIndexacao() throws IOException {
+        switch (opcao) {
+            case 1:
+                // exibirMenuHash();
+                break;
+            case 2:
+                exibirMenuLista();
+                break;
+            default:
+                System.out.println("Opção inválida! Tente novamente!");
+        }
+    }
+
+    public void exibirMenuLista() throws IOException {
+        try {
+            // Antes de exibir o Menu Lista Invertida, deve-se criar os dois arquivos de
+            // lista solicitados, tanto de nomes quanto de tipos
+            IndexacaoLista listaInvertida = new IndexacaoLista();
+            listaInvertida.criarListaInvertidaNomes();
+            listaInvertida.criarListaInvertidaTypes();
+
+            // Depois de criar os arquivos de maneira correta, o programa pode continuar
+            System.out.println("\n==X==X== MENU LISTA INVERTIDA ==X==X==");
+            System.out.println("Você deseja realizar qual operação na Lista Invertida?");
+            System.out.println("[1] Pesquisar um Anime");
+            System.out.println("[2] Criar um Anime [Lista Invertida]");
+            System.out.println("[3] Atualizar um Anime [Lista Invertida]");
+            System.out.println("[4] Deletar um Anime [Lista Invertida]");
+            System.out.println("[0] Voltar");
+
+            opcao = input.nextInt();
+
+            // Chamar o menu que controla a Lista Invertida
+            if (opcao != 0) {
+                menuLista();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void menuLista() throws IOException {
+        switch (opcao) {
+            case 1:
+                // Menu de pesquisa
+                break;
+            case 2:
+                // Menu de create
+                break;
+            case 3:
+                // Menu de update
+                break;
+            case 4:
+                // Menu de delete
+                break;
+            default:
+                System.out.println("Opção inválida! Tente novamente!");
         }
     }
 

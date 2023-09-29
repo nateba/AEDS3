@@ -1,11 +1,12 @@
 
 public class Diretorio {
-    private int profundidadeGlobal;
-    private Bucket enderecoBucket;
+
+    int profundidadeGlobal;
+    private Bucket Bucket;
 
     public Diretorio() {
         this.profundidadeGlobal = 1;
-        this.enderecoBucket = new Bucket();
+        this.Bucket = new Bucket();
     }
 
     public int getProfundidadeGlobal() {
@@ -16,12 +17,12 @@ public class Diretorio {
         this.profundidadeGlobal = profundidadeGlobal;
     }
 
-    public Bucket getEnderecoBucket() {
-        return enderecoBucket;
+    public Bucket getBucket() {
+        return Bucket;
     }
 
-    public void setEnderecoBucket(Bucket enderecoBucket) {
-        this.enderecoBucket = enderecoBucket;
+    public void setBucket(Bucket Bucket) {
+        this.Bucket = Bucket;
     }
 
 }

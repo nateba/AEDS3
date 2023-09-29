@@ -82,11 +82,58 @@ public class IndexacaoHash {
                         // Adiciona o registro ao novo bucket
                         bucket.getRegistros().add(registro);
                     }
+                } else {
+                    // Caso 2: Profundidade local do bucket não corresponde à profundidade global
+                    // Dividir o bucket em dois buckets
+                    Bucket bucket = hashFlexivel.getDiretorios().get(resultHash).getBucket();
+                    dividirBucket(bucket, hashFlexivel);
+
+                    // Recalcular o índice para o registro após a divisão
+                    resultHash = Hash(registro, diretorio);
+                    bucket = hashFlexivel.getDiretorios().get(resultHash).getBucket();
+
+                    // Adicionar o registro ao novo bucket
+                    bucket.getRegistros().add(registro);
                 }
             }
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public static void dividirBucket(Bucket bucket, HashFlexivel hashFlexivel) {
+        int profundidadeLocal = bucket.getProfundidadeLocal();
+        int profundidadeGlobal = hashFlexivel.getTamanho();
+
+        // Crie um novo bucket e atualize a profundidade local
+        Bucket novoBucket = new Bucket();
+        novoBucket.setProfundidadeLocal(profundidadeLocal + 1);
+
+        // Atualize a profundidade local do bucket existente
+        bucket.setProfundidadeLocal(profundidadeLocal + 1);
+
+        // Redistribua os registros entre os dois buckets
+        ArrayList<Registro> registrosOriginais = new ArrayList<>(bucket.getRegistros());
+        bucket.getRegistros().clear();
+
+        for (Registro registro : registrosOriginais) {
+            int resultHash = Hash(registro, hashFlexivel.getDiretorios().get(0)); // Use o primeiro diretório para
+                                                                                  // recalcular o índice
+
+            if ((resultHash & (1 << profundidadeLocal)) == 0) {
+                bucket.getRegistros().add(registro);
+            } else {
+                novoBucket.getRegistros().add(registro);
+            }
+        }
+
+        // Atualize os diretórios com os novos buckets
+        for (int i = 0; i < hashFlexivel.getTamanho(); i++) {
+            Diretorio dir = hashFlexivel.getDiretorios().get(i);
+            if (dir.getBucket() == bucket) {
+                dir.setBucket(novoBucket);
+            }
         }
     }
 

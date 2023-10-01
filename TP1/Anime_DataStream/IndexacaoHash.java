@@ -1,4 +1,6 @@
+import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
@@ -164,28 +166,127 @@ public class IndexacaoHash {
         }
     }
 
-    public static void gerarArquivoHashFlexivel()
-            throws IOException {
+    public static void gerarArquivoHashFlexivel(HashFlexivel hashFlexivel) throws IOException {
         try {
+            // Abre o arquivo de índice para escrita
+            FileOutputStream fileOutputStream = new FileOutputStream("arquivoIndice");
+            DataOutputStream dataOutputStream = new DataOutputStream(fileOutputStream);
 
-            RandomAccessFile arqIndice = new RandomAccessFile("arquivoIndice", "w"); // Criou um arquivo para escrita do
-                                                                                     // indice
-            RandomAccessFile arqHash = new RandomAccessFile("arqHash", "rw");
+            // Percorre os diretórios e buckets para escrever as informações no arquivo de
+            // índice
+            for (Diretorio diretorio : hashFlexivel.getDiretorios()) {
+                int profundidadeLocal = diretorio.getBucket().getProfundidadeLocal();
+                int profundidadeGlobal = diretorio.getProfundidadeGlobal();
 
-            Diretorio diretorio = new Diretorio();
+                // Escreve a profundidade local e global no arquivo de índice
+                dataOutputStream.writeInt(profundidadeLocal);
+                dataOutputStream.writeInt(profundidadeGlobal);
 
-            ArrayList<Registro> registros = geraListaRegistros();
+                // Em seguida, escreve os registros do bucket
+                for (Registro registro : diretorio.getBucket().getRegistros()) {
+                    // Escreva os dados do registro no arquivo de índice (ajuste para o seu formato)
+                    dataOutputStream.writeInt(registro.getIdRegistro());
+                    dataOutputStream.writeBoolean(registro.isLapide());
+                    dataOutputStream.writeInt(registro.getTamanho());
+                    dataOutputStream.write(registro.toByteArray());
 
-            for (Registro registro : registros) {
-                arqIndice.seek(0);
-                arqIndice.writeInt(0);
-
+                    // Lembre-se de ajustar a estrutura de dados no arquivo de índice
+                }
             }
 
-            arqIndice.close();
-            arqHash.close();
+            // Feche o arquivo de índice
+            dataOutputStream.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
     }
+
+    public static Registro recuperarRegistro(int idRegistro, HashFlexivel hashFlexivel) {
+        int resultHash = idRegistro % ((int) Math.pow(2, hashFlexivel.getDiretorios().get(0).getProfundidadeGlobal()));
+        Bucket bucket = hashFlexivel.getDiretorios().get(resultHash).getBucket();
+
+        for (Registro registro : bucket.getRegistros()) {
+            if (registro.getIdRegistro() == idRegistro) {
+                return registro;
+            }
+        }
+
+        return null; // Registro não encontrado
+    }
+
+    public static void atualizarRegistro(Registro novoRegistro, HashFlexivel hashFlexivel) {
+        int idRegistro = novoRegistro.getIdRegistro();
+        int resultHash = idRegistro % ((int) Math.pow(2, hashFlexivel.getDiretorios().get(0).getProfundidadeGlobal()));
+        Bucket bucket = hashFlexivel.getDiretorios().get(resultHash).getBucket();
+
+        for (int i = 0; i < bucket.getRegistros().size(); i++) {
+            Registro registro = bucket.getRegistros().get(i);
+            if (registro.getIdRegistro() == idRegistro) {
+                bucket.getRegistros().set(i, novoRegistro);
+                return; // Registro atualizado com sucesso
+            }
+        }
+    }
+
+    public static boolean excluirRegistro(int idRegistro, HashFlexivel hashFlexivel) {
+        int resultHash = idRegistro % ((int) Math.pow(2, hashFlexivel.getDiretorios().get(0).getProfundidadeGlobal()));
+        Bucket bucket = hashFlexivel.getDiretorios().get(resultHash).getBucket();
+
+        for (Registro registro : bucket.getRegistros()) {
+            if (registro.getIdRegistro() == idRegistro) {
+                bucket.getRegistros().remove(registro);
+                return true; // Registro excluído com sucesso
+            }
+        }
+
+        return false; // Registro não encontrado
+    }
+
+    public static void inserirRegistro(Registro registro, HashFlexivel hashFlexivel) {
+        int resultHash = Hash(registro, hashFlexivel.getDiretorios().get(0)); // Use o primeiro diretório para calcular
+                                                                              // o índice
+
+        if (hashFlexivel.getDiretorios().get(resultHash).getBucket().getProfundidadeLocal() == hashFlexivel
+                .getTamanho()) {
+            // Caso 1: O bucket está cheio, então precisamos dividir e redistribuir
+            Bucket bucket = hashFlexivel.getDiretorios().get(resultHash).getBucket();
+            if (bucket.getRegistros().size() < tamMaxBucket) {
+                bucket.getRegistros().add(registro);
+            } else {
+                // Se o bucket estiver cheio, aumente a profundidade global
+                aumentaProfundidade(hashFlexivel);
+                // Recalcula o índice com a nova profundidade global
+                resultHash = Hash(registro, hashFlexivel.getDiretorios().get(0));
+                // Obtém o novo bucket
+                bucket = hashFlexivel.getDiretorios().get(resultHash).getBucket();
+                // Adiciona o registro ao novo bucket
+                bucket.getRegistros().add(registro);
+            }
+        } else {
+            // Caso 2: Profundidade local do bucket não corresponde à profundidade global
+            // Dividir o bucket em dois buckets
+            Bucket bucket = hashFlexivel.getDiretorios().get(resultHash).getBucket();
+            if (bucket.getProfundidadeLocal() == hashFlexivel.getDiretorios().get(resultHash).getProfundidadeGlobal()) {
+                // Se a profundidade local do bucket for igual à profundidade global do
+                // diretório,
+                // precisamos aumentar a profundidade global e redistribuir os registros
+                aumentaProfundidade(hashFlexivel);
+                // Recalcula o índice com a nova profundidade global
+                resultHash = Hash(registro, hashFlexivel.getDiretorios().get(0));
+                // Obtém o novo bucket
+                bucket = hashFlexivel.getDiretorios().get(resultHash).getBucket();
+            }
+
+            // Agora dividimos o bucket
+            dividirBucket(bucket, hashFlexivel);
+
+            // Recalcular o índice para o registro após a divisão
+            resultHash = Hash(registro, hashFlexivel.getDiretorios().get(0));
+            bucket = hashFlexivel.getDiretorios().get(resultHash).getBucket();
+
+            // Adicionar o registro ao novo bucket
+            bucket.getRegistros().add(registro);
+        }
+    }
+
 }

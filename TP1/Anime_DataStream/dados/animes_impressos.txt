@@ -1,5 +1,5 @@
 REGISTRO DE ID 1
-Lapide: true
+Lapide: false
 Tamanho: 87
 DADOS DO ANIME
 ID:			1
@@ -55,7 +55,7 @@ Aired:		02 julho 2002
 = = = x = = = x = = = x = = = x = = = x = = =
 
 REGISTRO DE ID 5
-Lapide: false
+Lapide: true
 Tamanho: 83
 DADOS DO ANIME
 ID:			5
@@ -164075,6 +164075,20 @@ Genres:		Comedy, Sports
 Type:		Special
 Episodes:	1
 Aired:		14 março 2021
+
+= = = x = = = x = = = x = = = x = = = x = = =
+
+REGISTRO DE ID 11721
+Lapide: false
+Tamanho: 70
+DADOS DO ANIME
+ID:			11721
+Nome:		As Aventuras de Hayala
+Score:		10,00
+Genres:		Adventure, Action
+Type:		Movie
+Episodes:	125
+Aired:		01 outubro 2023
 
 = = = x = = = x = = = x = = = x = = = x = = =
 

@@ -1,12 +1,8 @@
-import java.io.DataOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.util.ArrayList;
 
 public class IndexacaoHash {
-    public static int tamMaxBucket = 686;
+    public static int tamMaxBucket = 686; // 5% dos tamanhos dos registros
 
     public static ArrayList<Registro> geraListaRegistros() {
         try {
@@ -98,7 +94,6 @@ public class IndexacaoHash {
                     bucket.getRegistros().add(registro);
                 }
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -106,7 +101,6 @@ public class IndexacaoHash {
 
     public static void dividirBucket(Bucket bucket, HashFlexivel hashFlexivel) {
         int profundidadeLocal = bucket.getProfundidadeLocal();
-        int profundidadeGlobal = hashFlexivel.getTamanho();
 
         // Crie um novo bucket e atualize a profundidade local
         Bucket novoBucket = new Bucket();
@@ -162,41 +156,6 @@ public class IndexacaoHash {
                 diretorio.setProfundidadeGlobal(hashFlexivel.getTamanho());
             }
         } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void gerarArquivoHashFlexivel(HashFlexivel hashFlexivel) throws IOException {
-        try {
-            // Abre o arquivo de índice para escrita
-            FileOutputStream fileOutputStream = new FileOutputStream("arquivoIndice");
-            DataOutputStream dataOutputStream = new DataOutputStream(fileOutputStream);
-
-            // Percorre os diretórios e buckets para escrever as informações no arquivo de
-            // índice
-            for (Diretorio diretorio : hashFlexivel.getDiretorios()) {
-                int profundidadeLocal = diretorio.getBucket().getProfundidadeLocal();
-                int profundidadeGlobal = diretorio.getProfundidadeGlobal();
-
-                // Escreve a profundidade local e global no arquivo de índice
-                dataOutputStream.writeInt(profundidadeLocal);
-                dataOutputStream.writeInt(profundidadeGlobal);
-
-                // Em seguida, escreve os registros do bucket
-                for (Registro registro : diretorio.getBucket().getRegistros()) {
-                    // Escreva os dados do registro no arquivo de índice (ajuste para o seu formato)
-                    dataOutputStream.writeInt(registro.getIdRegistro());
-                    dataOutputStream.writeBoolean(registro.isLapide());
-                    dataOutputStream.writeInt(registro.getTamanho());
-                    dataOutputStream.write(registro.toByteArray());
-
-                    // Lembre-se de ajustar a estrutura de dados no arquivo de índice
-                }
-            }
-
-            // Feche o arquivo de índice
-            dataOutputStream.close();
-        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
     }

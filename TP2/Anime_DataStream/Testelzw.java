@@ -20,8 +20,8 @@ public class Testelzw {
             System.out.println("Tempo de execucao: " + tempoTotal2 + "ms");
             long tamanhoOriginal = new RandomAccessFile("dados/animes.db", "r").length();// tamanho do arquivo
             long tamanhoFinal = new RandomAccessFile("arquivoComprimido.bin", "r").length(); // tamanho do arquivo
-                                                                                  //
-            float taxaCompressao = (tamanhoFinal / tamanhoOriginal);
+            //
+            float taxaCompressao = ((float) tamanhoFinal / tamanhoOriginal);
             float reducao = 100 * (1 - taxaCompressao); // percentual de reducao
             System.out.println("Percentual de reducao: " + reducao + "%");
         } catch (IOException e) {

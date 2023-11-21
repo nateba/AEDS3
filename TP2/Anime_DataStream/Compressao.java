@@ -33,7 +33,8 @@ public class Compressao {
         gerarArquivoComprimidoHuffman(stringParaComprimir);
 
         // Gerar o arquivo pelo algoritmo de LZW
-        // [IMPLEMENTAR]
+        LZW lzw = new LZW();
+        lzw.comprimir("dados/animes.db", "arquivoComprimido.bin");
 
         // Calcular a taxa de compressão dos algoritmos e comparar ambos
         calculaTaxaCompressao();

@@ -11,4 +11,13 @@ public class CasamentoPadroes {
             System.out.println("\nInfelizmente, o padrão não foi encontrado!");
         }
     }
+
+    public void pesquisaPadraoTextoBoy(String padrao) throws Exception {
+        String stringBaseAnimes = BaseString.gerarStringDaBaseDeAnimes(caminhoArquivoDb);
+
+        System.out.println("\n•._.••´¯``•.,,.•` CASAMENTO DE PADRÕES - ALGORITMO [BOY] `•.,,.•´´¯`••._.•\n");
+
+        BoyerMoore bm = new BoyerMoore(padrao);
+        bm.findPadrao(stringBaseAnimes);// string
+    }
 }

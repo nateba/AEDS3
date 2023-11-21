@@ -167,7 +167,14 @@ public class Menu {
                 }
                 break;
             case 2:
-                // [IMPLEMENTAR]
+                System.out.println("Qual termo você está buscando?");
+                input.nextLine();
+                String padraoPesquisa2 = input.nextLine();
+
+                if (padraoPesquisa2.length() > 0) {
+                    CasamentoPadroes casamentoPadroes = new CasamentoPadroes();
+                    casamentoPadroes.pesquisaPadraoTextoBoy(padraoPesquisa2);
+                }
                 break;
             default:
                 System.out.println("Opção inválida! Tente novamente!");

@@ -18,6 +18,26 @@ public class LZW {
         bitEsq = true;
     }
 
+    public String arquivoExiste(int versao) {
+        try {
+            String nomeArquivo = "bancoLZWCompressao" + versao + ".bin";
+            File arquivo = new File(nomeArquivo);
+            if (!arquivo.exists()) { // se o arquivo nao existir
+                arquivo.delete(); // deleta o arquivo de testes
+                return nomeArquivo; // retorna o nome do arquivo
+            } else {
+                versao++; // incrementa a versao
+                nomeArquivo = "bancoLZWCompressao" + versao + ".bin";
+                return arquivoExiste(versao); // chama o metodo novamente
+            }
+        } catch (Exception e) {
+            System.out.println();
+            System.out.println("Erro ao verificar se arquivo existe: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     /* Métodos de compressão */
     public void comprimir(String inFileName, String outFileName) throws IOException {
         inicializaDicionario();

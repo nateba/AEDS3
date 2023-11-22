@@ -7,6 +7,7 @@ public class Descompressao {
     // Variáveis para cálculo de tempo de execução
     long tempoInicio = 0;
     long tempoFinalHuffman = 0;
+    long tempoFinalLZW = 0;
 
     // Chamar as funções para descompactar arquivos por Huffman e LZW
     public void descomprimirArquivo(int versao) throws Exception {
@@ -20,7 +21,7 @@ public class Descompressao {
         gerarArquivoDescomprimidoHuffman(stringParaComprimir);
 
         // Descomprimir o arquivo pelo algoritmo de LZW
-        // [IMPLEMENTAR]
+        gerarArquivoDescomprimidoLZW("compressao/animesLZWCompressao"+versao+".db");
 
         // Calcular a taxa de compressão dos algoritmos e comparar ambos
         calculaTempoDescompressao();
@@ -28,7 +29,7 @@ public class Descompressao {
 
     private void gerarArquivoDescomprimidoHuffman(StringBuilder stringBinaria) throws Exception {
         // Passar o endereço da base de dados
-        RandomAccessFile arq = new RandomAccessFile("descompressao/animes_dscmp.db", "rw");
+        RandomAccessFile arq = new RandomAccessFile("descompressao/animes_dscmp_huffman.db", "rw");
 
         HuffmanCoding huffmanCoding = new HuffmanCoding();
 
@@ -90,17 +91,33 @@ public class Descompressao {
         tempoFinalHuffman = System.nanoTime();
     }
 
+    public void gerarArquivoDescomprimidoLZW(String arquivo) throws IOException {
+        LZW lzw = new LZW();
+        lzw.descomprimir(arquivo, "descompressao/animes_dscmp_lzw.db");
+
+        tempoFinalLZW = System.nanoTime();
+    }
+
     // Calcular o tempo gasto na execução dos algoritmos de descompressão
     public void calculaTempoDescompressao() {
         long tempoExecucaoHuffman = (tempoFinalHuffman - tempoInicio) / 1000000; // Converter para milisegundos
+        long tempoExecucaoLZW = (tempoFinalLZW - tempoInicio) / 1000000; // Converter para milisegundos
 
         System.out.println("\nTEMPO DE EXECUÇÃO");
         System.out.println("Tempo de execução da descompressão em Huffman: " + tempoExecucaoHuffman + " milissegundos");
+        System.out.println("Tempo de execução da descompressão em LZW: " + tempoExecucaoLZW + " milissegundos");
+
+        compararAlgoritmosDescompressao();
     }
 
     // Fazer uma comparação entre os algoritmos Huffman e LZW e mostrar para o
     // usuário qual se saiu melhor em tempo de execução
     public void compararAlgoritmosDescompressao() {
-
+        System.out.println("\nCOMPARAÇÃO DE DESCOMPRESSÃO");
+        if(tempoFinalHuffman<tempoFinalLZW) {
+            System.out.println("O algoritmo Huffman descomprimiu mais rápido o seu arquivo.");
+        } else {
+            System.out.println("O algoritmo LZW descomprimiu mais rápido o seu arquivo.");
+        }
     }
 }

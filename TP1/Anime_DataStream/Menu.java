@@ -9,7 +9,7 @@ public class Menu {
 
     Scanner input = new Scanner(System.in);
 
-    // A variável opção será colocada como global para poder ser acessada por todas
+    // A variavel opção será colocada como global para poder ser acessada por todas
     // as funções dos diferentes escopos
     int opcao;
 
@@ -305,9 +305,9 @@ public class Menu {
     public void exibirMenuOrdenacao() throws IOException {
         System.out.println("\n==X==X== MENU ORDENAÇÃO EXTERNA ==X==X==");
         System.out.println("Você deseja fazer a Ordenação Externa por qual método?");
-        System.out.println("[1] Intercalação balanceada comum");
-        System.out.println("[2] Intercalação balanceada com blocos de tamanho variável");
-        System.out.println("[3] Intercalação balanceada com seleção por substituição");
+        System.out.println("[1] intercalacao balanceada comum");
+        System.out.println("[2] intercalacao balanceada com blocos de tamanho variavel");
+        System.out.println("[3] intercalacao balanceada com seleção por substituição");
         System.out.println("[0] Voltar");
 
         opcao = input.nextInt();
@@ -321,17 +321,17 @@ public class Menu {
     public void menuOrdenacao() throws IOException {
         switch (opcao) {
             case 1:
-                System.out.println("\nINTERCALAÇÃO BALANCEADA COMUM SELECIONADA!");
+                System.out.println("\nintercalacao BALANCEADA COMUM SELECIONADA!");
                 OrdenacaoExterna intercalacaoSimples = new OrdenacaoExterna();
                 intercalacaoSimples.intercalacaoBalanceadaComum();
                 break;
             case 2:
-                System.out.println("\nINTERCALAÇÃO BALANCEADA COM BLOCOS DE TAMANHO VARIÁVEL SELECIONADA!");
+                System.out.println("\nintercalacao BALANCEADA COM BLOCOS DE TAMANHO variavel SELECIONADA!");
                 OrdenacaoExterna intercalacaoVariavel = new OrdenacaoExterna();
                 intercalacaoVariavel.intercalacaoBalanceadaVariavel();
                 break;
             case 3:
-                System.out.println("\nINTERCALAÇÃO BALANCEADA COM SELEÇÃO POR SUBSTITUIÇÃO SELECIONADA!");
+                System.out.println("\nintercalacao BALANCEADA COM SELEÇÃO POR SUBSTITUIÇÃO SELECIONADA!");
                 OrdenacaoExterna intercalacaoSubstituicao = new OrdenacaoExterna();
                 intercalacaoSubstituicao.intercalacaoBalanceadaSubstituicao();
                 break;
@@ -511,7 +511,7 @@ public class Menu {
         arq.close();
     }
 
-    public static String header; // Variável para separar os cabeçalhos
+    public static String header; // variavel para separar os cabeçalhos
 
     public static String[] dividirLinhaCSV(String linha) {
         List<String> colunas = new ArrayList<>();

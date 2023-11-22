@@ -15,13 +15,16 @@ public class Compressao {
     static int bitsRestantesHuffman = 0;
 
     // Variáveis para cálculo de tempo de execução
-    long tempoInicio = 0;
+    long tempoInicioHuffman = 0;
     long tempoFinalHuffman = 0;
+    long tempoInicioLZW = 0;
+    long tempoFinalLZW = 0;
 
     // Chamar as funções para comprimir arquivos por Huffman e LZW
     public void comprimirArquivo() throws Exception {
         // Armazenar o tempo em que a compressão iniciou
-        tempoInicio = System.nanoTime();
+        tempoInicioHuffman = System.nanoTime();
+        tempoInicioLZW = System.nanoTime();
 
         // Pegar a string que será comprimida
         String stringParaComprimir = BaseString.gerarStringDaBaseDeAnimes(caminhoArquivoDb);
@@ -33,8 +36,7 @@ public class Compressao {
         gerarArquivoComprimidoHuffman(stringParaComprimir);
 
         // Gerar o arquivo pelo algoritmo de LZW
-        LZW lzw = new LZW();
-        lzw.comprimir("dados/animes.db", "arquivoComprimido.bin");
+        gerarArquivoComprimidoLZW();
 
         // Calcular a taxa de compressão dos algoritmos e comparar ambos
         calculaTaxaCompressao();
@@ -91,16 +93,32 @@ public class Compressao {
         tempoFinalHuffman = System.nanoTime();
     }
 
+    public void gerarArquivoComprimidoLZW() throws IOException {
+        // Chamar a classe LZW para gerar o arquivo comprimido na pasta
+        LZW lzw = new LZW();
+        lzw.comprimir(caminhoArquivoDb, "compressao/animesLZWCompressao" + versaoArquivo + ".db");
+
+        // Calcular o final da execução
+        tempoFinalLZW = System.nanoTime();
+
+        // Pegar o tamanho do arquivo comprimido
+        RandomAccessFile arq = new RandomAccessFile("compressao/animesLZWCompressao" + versaoArquivo + ".db", "rw");
+
+        tamanhoArquivoLZW = arq.length();
+
+        arq.close();
+    }
+
     // Calcular as taxas de compressão com ambos os algoritmos e exibir para o
     // usuário a porcentagem em relação ao tamanho original do arquivo compactado
     public void calculaTaxaCompressao() {
         System.out.println("\nTAXAS DE COMPRESSÃO");
         System.out.println("Tamanho do arquivo original: " + tamanhoArquivoOriginal + " bytes");
         System.out.println("Tamanho do arquivo compactado Huffman: " + tamanhoArquivoHuffman + " bytes");
+        System.out.println("Tamanho do arquivo compactado LZW: " + tamanhoArquivoLZW + " bytes");
 
-        System.out
-                .println("Taxa de Compressão Huffman: " + (float) tamanhoArquivoHuffman / tamanhoArquivoOriginal * 100
-                        + "%");
+        System.out.println("\nResultado de Compressão Huffman: " + (float) tamanhoArquivoHuffman / tamanhoArquivoOriginal * 100 + "%");
+        System.out.println("Resultado de Compressão LZW: " + (float) tamanhoArquivoLZW / tamanhoArquivoOriginal * 100 + "%");
 
         // Aumentar a versão do arquivo, caso o usuário queira compactar mais de uma vez
         versaoArquivo++;
@@ -109,16 +127,26 @@ public class Compressao {
     // Calcular o tempo de execução de cada um dos algoritmos e exibir para o
     // usuário
     public void calculaTempoCompressao() {
-        long tempoExecucaoHuffman = (tempoFinalHuffman - tempoInicio) / 1000000; // Converter para milisegundos
+        long tempoExecucaoHuffman = (tempoFinalHuffman - tempoInicioHuffman) / 1000000; // Converter para milisegundos
+        long tempoExecucaoLZW = (tempoFinalLZW - tempoInicioHuffman) / 1000000; // Converter para milisegundos
 
         System.out.println("\nTEMPO DE EXECUÇÃO");
         System.out.println("Tempo de execução da compressão em Huffman: " + tempoExecucaoHuffman + " milissegundos");
+        System.out.println("Tempo de execução da compressão em LZW: " + tempoExecucaoLZW + " milissegundos");
+
+        compararAlgoritmosCompressao();
     }
 
     // Fazer uma comparação entre os algoritmos Huffman e LZW e mostrar para o
     // usuário qual se saiu melhor, tanto em tamanho do arquivo compactado quanto em
     // tempo de execução
     public void compararAlgoritmosCompressao() {
+        System.out.println("\nCOMPARAÇÃO DE ALGORITMOS");
 
+        if (tamanhoArquivoHuffman<tamanhoArquivoLZW) {
+            System.out.println("O algoritmo Huffman comprimiu mais o seu arquivo.");
+        } else {
+            System.out.println("O algoritmo LZW comprimiu mais o seu arquivo.");
+        }
     }
 }

@@ -13,7 +13,7 @@ public class barraProgresso {
         int charsExtras = (porcentagem / 2) - this.progresso.length();
 
         while (charsExtras-- > 0) {
-            progresso.append('.');
+            progresso.append("loading");
         }
 
         System.out.printf(formatacao, porcentagem, progresso, charsProgresso[done % charsProgresso.length]);
